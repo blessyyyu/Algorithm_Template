@@ -24,7 +24,9 @@ void dfs(int u){
         if(!st[i]){
             path[u] = i;
             st[i] = true;
+            // 向下深搜
             dfs( u + 1);
+            // 恢复现场
             path[u] = 0;
             st[i] = false;
         }
