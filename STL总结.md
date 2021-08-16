@@ -604,6 +604,10 @@ swap(container c1, container c2);             // 两个容器需要同种类型
 accumulate(iterator beg, iterator end, value);
 
 fill(iterator beg, iterator end, value);        // 填充指定的值
+// 二维数组使用fill来填充
+fill(&g[0][0], &g[0][0] + N * N, '.');
+// 一维数组使用fill来填充
+fill(col, col + N, false);
 ```
 
 
