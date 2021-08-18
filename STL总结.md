@@ -146,7 +146,7 @@ s.insert();			// O(logn)
 size();
 empty();
 find();			// 查找一个数，不存在返回end迭代器
-count()       // 返回某一个数的个数
+count()       // 返回某一个数的个数, 通常可以用count()函数来判断set和map里是否包含某个元素
 erase();	// 如果输入一个数x，删除所有x；如果输入一个迭代器，删除这个迭代器；  O( k + logn)
 begin()/ end();  //++ --的时间复杂度也是O(logn)
 
@@ -166,6 +166,7 @@ insert();     // 插入的数是一个pair
 erase();     // 输入的参数是pair或者迭代器
 find();
 [];          //可以像用数组一样使用map, 时间复杂度是O(logn),数组的下标是O(1)
+iter->first; iter->second;
 map<string, int> a;
 a["yxc"] = 1;
 cout<< a["yxc"]<<endl;
