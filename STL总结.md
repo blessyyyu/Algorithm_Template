@@ -56,9 +56,10 @@ pair<int, pair<int,int>> p;
 
 ```c++
 string s;
-    size();length()
-    empty()
-    clear()
+    size();length();
+    empty();
+    clear();
+	erase();  // 支持删除某一项
  	也支持比较元素
     s.substr(1, 2); 		// 第一个参数是字串的开始下标，第二个参数是子串长度(若很大，直接输出到最后一个元素)
 printf("%s\n", s.c_str())
