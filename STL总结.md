@@ -526,7 +526,7 @@ int main() {
 
 
 
-#### 遍历算法
+#### 遍历算法: for_each, transform
 
 以下的算法也可以调用普通函数
 
@@ -555,7 +555,7 @@ transform(v.begin(), v.end(), vTarget.begin(), TransForm());
 
 
 
-#### 查找算法
+#### 查找算法:find,count
 
 ```c++
 find(iterator beg, iterator end, value);       // value为要查找的元素
@@ -570,7 +570,7 @@ count_if(iterator beg, iterator end, _Pred);     // 按照谓词来统计元素�
 
 
 
-#### 排序算法
+#### 排序算法:sort,merge,reverse
 
 ```c++
 sort(iterator beg, iterator end, _Pred);    // 比较函数可以是谓词，可以是普通函数
@@ -583,7 +583,7 @@ reverse(iterator beg, iterator end);              //用的多！
 
 
 
-#### 拷贝和替换算法
+#### 拷贝和替换算法:copy,swap,replace
 
 ```c++
 copy(iterator beg, iterator end, iterator dest);       // dest目标起始迭代器 记得提前开辟空间
@@ -594,7 +594,7 @@ swap(container c1, container c2);             // 两个容器需要同种类型
 
 
 
-#### 算术生成算法
+#### 算术生成算法: accumulate,fill
 
 算术生成算法属于小型算法，使用时包含的头文件为 `#include <numeric>`
 
@@ -614,7 +614,7 @@ fill(col, col + N, false);
 
 
 
-#### 常用的集合算法
+#### 常用的集合算法:求交集并集，差集
 
 ```c++
 // 求两个容器的交集 注意:两个集合必须是有序序列

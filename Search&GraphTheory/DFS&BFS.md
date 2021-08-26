@@ -738,7 +738,14 @@ int main()
 
 拓扑序列就是，当把一张图的结点按照拓扑排列好后，它的结点都是从前指向后的。
 
-### 模板步骤：
+
+
+### 模板思想和步骤：
+
+1. 在存储图的时候，额外存储一下每一个结点的入度值，把入度为0的结点入队；
+
+2. 接下来出队，删除出队的结点与其他结点相连的边，将其他结点的入度值减小，当减为0的时候，入队；
+3. 出队的顺序就是拓扑排序的结果。
 
 ```c++
 queue <- 所有入度为0的点;
@@ -756,3 +763,117 @@ while(queue.size()){
 
 
 如果存在有环，所有点的入度都不为0，
+
+
+
+### 经典例题：输出有向图的任意一个合法的拓扑排序
+
+给定一个 n个点 m 条边的有向图，点的编号是 1 到 n，图中可能存在重边和自环。
+
+请输出任意一个该有向图的拓扑序列，如果拓扑序列不存在，则输出 −1。
+
+若一个由图中所有点构成的序列 A 满足：对于图中的每条边 (x,y)，x 在 A 中都出现在 y 之前，则称 A 是该图的一个拓扑序列。
+
+#### 输入格式
+
+第一行包含两个整数 n 和 m。
+
+接下来 m 行，每行包含两个整数 x 和 y，表示存在一条从点 x 到点 y 的有向边 (x,y)。
+
+#### 输出格式
+
+共一行，如果存在拓扑序列，则输出任意一个合法的拓扑序列即可。
+
+否则输出 −1。
+
+#### 数据范围
+
+$1≤n,m≤10^5$
+
+#### 输入样例：
+
+```
+3 3
+1 2
+2 3
+1 3
+```
+
+#### 输出样例：
+
+```
+1 2 3
+```
+
+
+
+```c++
+// 使用两个queue队列，其中一个用来保存结果
+#include<iostream>
+#include<algorithm>
+#include<cstring>
+#include<queue>
+using namespace std;
+
+const int N = 1e5 + 10;
+
+int n,m;
+int e[N], h[N], ne[N], idx;
+
+queue<int> q;
+queue<int> res;
+// 用d[]数组来存储入度
+int d[N];
+
+void add(int a, int b){
+    e[idx] = b, ne[idx] = h[a], h[a] = idx++;
+}
+
+bool topsort(){
+    // 把所有入度为0的结点入队
+    for(int i = 1; i <= n ; i++){
+        if(!d[i]){
+            q.push(i);
+        }
+    }
+    
+    while(q.size()){
+        // 出队的顺序就是拓扑序
+        int t = q.front(); q.pop();
+        res.push(t);
+        for(int i = h[t]; i != -1; i = ne[i]){
+            int j = e[i];
+            // 让它的入度--
+            d[j]--;
+            if(d[j] == 0){
+                q.push(j);
+            }
+        }
+    }
+    // 判断是否所有点都入队过了
+    return res.size() == n;
+}
+
+int main(){
+    cin >> n >> m;
+    memset(h , -1, sizeof(h));
+    while( m -- ){
+        int a, b ; 
+        cin>> a >> b;
+        add(a, b);
+        // b的入度++
+        d[b] ++;
+    }
+    
+    if(topsort()){
+        while(res.size()){
+            cout << res.front() << " ";
+            res.pop();
+        }
+    }else{
+        printf("-1\n");
+    }
+    return 0;
+}
+```
+
