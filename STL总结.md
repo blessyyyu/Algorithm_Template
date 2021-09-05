@@ -96,7 +96,7 @@ pop();  //弹出堆顶元素
 2. 
     #include<queue>
     #include<vector>
-    priority_queue<int, vector<int>, greater<int>> heap;
+    priority_queue<int, vector<int>, greater<int>> heap;       // 小根堆
 ```
 
 
