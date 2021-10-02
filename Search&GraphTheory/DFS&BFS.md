@@ -25,13 +25,9 @@ a -> b的边：
 
 
 
+DFS算法,从数据结构来看：使用栈， 并且每次只需要记录从根节点到目前结点的路径就可以，所需要的空间是`O(h)`的； 
 
-
-
-
-DFS算法 从数据结构来看：使用栈， 并且每次只需要记录从根节点到目前结点的路径就可以，所需要的空间是`O(h)`的； 
-
-BFS算法 从数据结构来看：使用队列queue, 所需要的空间是$O(2^h)$,  但是BFS第一次扩展到的点，具有"最短路"的性质；
+BFS算法,从数据结构来看：使用队列queue, 所需要的空间是$O(2^h)$,  但是BFS第一次扩展到的点，具有"最短路"的性质；
 
 **DFS使用的是一棵树的形式来进行搜索**，一般用递归来做；递归也一般画一棵树；
 
@@ -48,17 +44,14 @@ bool st[N];
 // 八皇后里,需要三个Bool变量
 bool col[N], dg[N], udg[N];
 // u 表示当前正在访问的节点
-void dfs(int u){
-	if(!st[u]){
-        st[u] = true;
-        // 具体访问代码；
-     	visit(u);
-        
-        dfs(与u相连的其他节点);
-        // 根据具体题目，考虑是否需要恢复现场，如果当前访问的节点对其他节点的访问有影响，则一定要恢复现场
-        st[u] = false;
-    }
 
+void dfs(int u){
+    st[u] = true;
+    
+    for(int i = h[u]; i != -1; i = ne[i]){
+        int j = e[i];
+        if(!st[j])	dfs(j);
+    }
 }
 ```
 
@@ -256,9 +249,7 @@ int main(){
 
 
 
-#### 解答2：
-
-枚举棋盘中的每一个可以选择的空位，每一个格子都有放置皇后和不放置皇后两种，选择其中的一种，往下深搜。
+#### 解答2：枚举棋盘中的每一个可以选择的空位，每一个格子都有放置皇后和不放置皇后两种，选择其中的一种，往下深搜。
 
 时间复杂度为$O(2^{n^{2}})$
 
@@ -316,7 +307,9 @@ int main(){
 }
 ```
 
+#### 两种解答总结
 
+方法一一般速度较快，方法二更容易理解；推荐记忆方法一。
 
 
 
@@ -336,7 +329,7 @@ int main(){
 
 #### 输出格式
 
-输出一个整数 mm，表示将重心删除后，剩余各个连通块中点数的最大值。
+输出一个整数 m，表示将重心删除后，剩余各个连通块中点数的最大值。
 
 #### 数据范围
 
@@ -363,6 +356,18 @@ $1≤n≤10^5$
 ```
 
 
+
+#### 解答
+
+此题中，要注意“剩余各个连通块中点数的最大值”， 这个点数 ≠ 结点数。比如：
+
+![image-20210919211746477](DFS&BFS.assets/image-20210919211746477.png)
+
+当把结点1删除后，剩余有三个连通块，其中连通块中点数最多的是4.
+
+此题的思路是深度优先遍历，不断从树的叶结点开始，累计结点数量。
+
+`Line41` 是关键，`n - sum`的含义： 比如以4为根节点，sum = 4, res = 5, n - sum = 5, 所以以4为根节点更新的ans = 5
 
 ```c++
 #include<iostream>
@@ -406,7 +411,8 @@ int dfs(int u) {
 		}
 	}
 	res = max(res, n - sum);	// 右式中的res：子树中的最大连通块数目
-	ans = min(ans, res);     // dfs相当于遍历了一遍所有结，取了剩余各个连通块中点数的最大值最小
+	ans = min(ans, res);     // dfs相当于遍历了一遍所有结点，取了剩余各个连通块中点数的最大值最小
+    // cout << "u=" << u <<"\t sum=" << sum << "\t ans = " << ans << endl;   // 来进行调试
 	return sum;
 }
 
@@ -432,12 +438,6 @@ int main() {
 
 
 
-
-
-
-
-
-
 ### BFS
 
 图的边权都是1的时候，计算最短距离用BFS解答；
@@ -457,8 +457,6 @@ while(queue.size())
     }
 }
 ```
-
-
 
 
 
@@ -873,6 +871,63 @@ int main(){
     }else{
         printf("-1\n");
     }
+    return 0;
+}
+```
+
+
+
+
+
+```c++
+#include<bits/stdc++.h>
+
+using namespace std;
+
+const int N = 1e5 + 10;
+
+int h[N], e[N], ne[N], idx;
+
+void add(int a, int b)  // 添加一条边a->b
+{
+    e[idx] = b, ne[idx] = h[a], h[a] = idx ++ ;
+}
+int n,m;
+queue<int> q;
+int d[N];
+
+bool st[N];
+int bfs(){
+    q.push(1);
+    memset(d,0x3f, sizeof(d));
+    d[1] = 0;
+    while(q.size()){
+        auto t = q.front();
+        q.pop();
+        st[t] = true;
+        int distance = 0;
+        for(int i = h[t]; i != -1 ; i = ne[i]){
+            int j = e[i];
+            if(!st[j]){
+                q.push(j);
+                d[j] = d[t] + 1;
+                if(j == n)  return d[n];
+            }
+        }
+    }
+    if(d[n] == 0x3f3f3f3f)  return -1;
+    else    return d[n];
+}
+int main()
+{
+    cin >> n >> m;
+    memset(h, -1, sizeof h);
+    while (m -- ){
+        int a,b;
+        cin >> a >> b;
+        add(a, b);
+    }
+    cout<< bfs() << endl;
     return 0;
 }
 ```

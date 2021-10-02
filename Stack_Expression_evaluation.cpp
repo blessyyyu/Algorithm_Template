@@ -46,6 +46,8 @@ int main()
 {
     // 这里的s是表达式
     cin >> s;
+    
+    // for循环用来将数字和操作符变成两个栈中的元素
     for (int i = 0; i < s.size(); i++)
     {
         if (isdigit(s[i]))
@@ -74,6 +76,7 @@ int main()
         {
             while (op.size() && pr[s[i]] <= pr[op.top()])
             {
+				// 先把栈中的高优先级符号的运算先计算了
                 eval();
             }
             op.push(s[i]);
