@@ -533,7 +533,20 @@ int main() {
 ```c++
 for_each(iterator beg, iterator end, _func);   // _func普通函数或者函数对象
 //遍历算法
+void print01(int val){
+    cout << val << " ";
+}
+// 调用普通函数不加括号，传递的是函数指针
 for_each(v.begin(), v.end(), print01);
+
+
+class print02{
+public:
+    void operator()(int val){
+        cout << val << " ";
+    }
+}; 
+
 
 for_each(v.begin(), v.end(), print02());		//调用函数对象
 

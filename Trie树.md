@@ -8,7 +8,7 @@
 
 
 
-典型例题如下：
+### 典型例题1：字符串集合
 
 维护一个字符串集合，支持两种操作：
 
@@ -146,18 +146,25 @@ int main() {
 
 using namespace std;
 const int N = 1e5 + 10;
-char str[N];
-
+char mstr[N];
+// son[][]数组存储当前结点的所有子节点, cnt[N]: 存储以当前点结尾的单词有多少个；idx下标
+// 下标是0的点，既是根节点，又是空结点
 int idx, son[N][26], cnt[N];
 
 void insert(char str[]){
+    // p = 0表示从根节点root开始
     int p = 0;
     // due to char[] over by '\0'，so we can use str[i] to judge isOver
+    // for循环遍历整个char数组;
     for(int i = 0; str[i]; i ++){
+        // u表示当前字母是哪一个
         int u = str[i] - 'a';
+        // 如果没有结点，那么就建立一个结点
         if( !son[p][u] )  son[p][u] = ++ idx;
+        // 再走过去
         p = son[p][u];
     }
+    // 此时p就是最后一个结点的下标
     cnt[p] ++;
 }
 
@@ -165,6 +172,7 @@ int query(char str[]){
     int p = 0;
     for(int i = 0; str[i]; i ++){
         int u = str[i] - 'a';
+        // 提前返回0,剪枝的过程
         if( !son[p][u] )    return 0;
         else p = son[p][u];
     }
@@ -176,12 +184,115 @@ int main(){
     cin >> n;
     while( n -- ){
         char op[2];
-        scanf("%s%s", op, str);
-        if(op[0] == 'I')    insert(str);
-        else    printf("%d\n", query(str));
+        scanf("%s%s", op, mstr);
+        if(op[0] == 'I')    insert(mstr);
+        else    printf("%d\n", query(mstr));
     }
     return 0;
 
+}
+```
+
+
+
+### 典型例题2： 最大异或对
+
+在给定的 N 个整数 A1，A2……AN 中选出两个进行 xor（异或）运算，得到的结果最大是多少？
+
+#### 输入格式
+
+第一行输入一个整数 N。
+
+第二行输入 N 个整数 A1～AN。
+
+#### 输出格式
+
+输出一个整数表示答案。
+
+#### 数据范围
+
+$$1≤N≤10^5 \\
+0≤Ai<2^{31} $$
+
+#### 输入样例：
+
+```
+3
+1 2 3
+```
+
+#### 输出样例：
+
+```
+3
+```
+
+
+
+![image-20211004233544610](Trie树.assets/image-20211004233544610.png)
+
+
+
+```c++
+注意： i >= 0 等价于 ~i; 因为i = -1在计算机中表示为1111111...1, 全部取反变为00000..00。
+```
+
+
+
+
+
+#### 解答：
+
+```c++
+#include<bits/stdc++.h>
+
+using namespace std;
+// N表示一共有多少个数; M表示有N个数，每个数有31位的总长度;
+const int N = 1e5 + 10, M = 31e5 + 10;
+// idx表示Trie结点下标, son[M][2]表示一棵二叉树
+int idx, son[M][2];
+int n;
+
+int a[N];
+// insert就是建立索引
+void insert(int x){
+    int p = 0;
+    for(int i = 30; i >= 0; i--){
+        int & s = son[p][x >> i & 1];
+        if(!s)  s = ++ idx;
+        p = s;
+    }
+}
+// query为从数x开始，找与它位数恰好相反的路径是否在Trie树中
+int query(int x){
+    int p = 0, res = 0;
+    for(int i = 30; i >= 0; i--){           // i >= 0可以简写成~i
+        int s = x >> i & 1;
+        // 表示当前位取反在Trie树中存在结点
+        if(son[p][!s]){
+            res += 1 << i;          // 左移i位
+            p = son[p][!s];         // p往下继续走
+        }else{
+            p = son[p][s];
+        }
+    }
+    
+    return res;
+}
+
+
+int main(){
+    cin >> n;
+    for(int i = 0 ; i < n; i ++){
+        cin >> a[i];
+        insert(a[i]);
+    }
+    // res值存储任意两个值异或后的结果
+    int res = 0;
+    for(int i = 0; i < n; i++ ) res=  max(res, query(a[i]));
+    // 遍历后取max得到最大值
+    cout << res << endl;
+    
 }
 ```
 
