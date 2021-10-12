@@ -3,6 +3,10 @@ import java.io.*;
 public class Main{
     public static  void quick_sort(int[] arr, int l, int r){
         if(l >= r)  return;
+        // 快速排序非常重要的一步就是选取标杆值
+        // 这里不能写成 int x = l + r >> 1;
+        // 因为代码中，这个x所在的下标可能正好和别人交换了
+        // 所以保留的应该是标杆的值，而不是标杆的下标
         int x = arr[ (l + r) / 2];
         int i = l - 1;
         int j = r + 1;

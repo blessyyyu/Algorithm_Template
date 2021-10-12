@@ -10,13 +10,14 @@ const int N = 1e5 + 10;
 
 vector<int> multi(vector<int> &A, int b)
 {
-    vector<int> res;
+    // 函数内的局部变量，注意一定要初始化
     int c = 0;
-    for (int i = 0; i < A.size(); i++)
-    {
-        c += A[i] * b;
-        res.push_back(c % 10);
-        c /= 10;
+    int t = 0;
+    vector<int> res;
+    for(int i = 0; i < A.size(); i++){
+        t = A[i] * b + c;
+        res.push_back(t % 10);
+        c = t / 10;
     }
     while (c)
     {
@@ -24,7 +25,7 @@ vector<int> multi(vector<int> &A, int b)
         c /= 10;
     }
 
-    // 乘法也要去除前导0
+    // 乘法也要去除前导0,如果输入是12345 和 0, 那么结果是00000， 不对的。
     while (res.size() > 1 && res.back() == 0)
         res.pop_back();
 
