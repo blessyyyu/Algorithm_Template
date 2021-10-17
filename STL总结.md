@@ -617,7 +617,7 @@ swap(container c1, container c2);             // 两个容器需要同种类型
 // end 结束迭代器
 // value 起始值
 accumulate(iterator beg, iterator end, value);
-
+// res = accumulate(euler + 1, euler + n + 1, (LL)0);    从euler[1] 到euler[n]的累计求和，且返回类型为long long
 fill(iterator beg, iterator end, value);        // 填充指定的值
 // 二维数组使用fill来填充
 fill(&g[0][0], &g[0][0] + N * N, '.');
