@@ -686,7 +686,7 @@ int main() {
 
 
 ```c++
-// 求两个集合的并集 注意:两个集合必须是有序序列   set_union返回值既是并集中最后一个元素的位置
+// 求两个集合的并集 注意:两个集合必须是有序序列   set_union返回值是并集中最后一个元素的位置
 set_union(iterator beg1, iterator end1, iterator beg2, iterator end2, iterator dest); 
 //求两个集合的差集  注意:两个集合必须是有序序列
 set_difference(iterator beg1, iterator end1, iterator beg2, iterator end2, iterator dest);
