@@ -583,7 +583,7 @@ count_if(iterator beg, iterator end, _Pred);     // 按照谓词来统计元素�
 
 
 
-#### 排序算法:sort,merge,reverse
+#### 排序算法:sort,merge,reverse,lower_bound()， upper_bound()
 
 ```c++
 sort(iterator beg, iterator end, _Pred);    // 比较函数可以是谓词，可以是普通函数
@@ -592,6 +592,9 @@ random_shuffle(iterator beg, iterator end);  // 指定范围内的元素随机�
 // 注意: 两个容器必须是有序的 ; dest :目标容器开始迭代器, 合并出来的元素不是有序的
 merge(iterator beg1, iterator end1, iterator beg2, iterator end2, iterator dest);  
 reverse(iterator beg, iterator end);              //用的多！
+lower_bound(), upper_bound()用于有序数组或容器中:
+	lower_bound(first, last, val)用来寻找数组或容器的[first,last)范围内第一个值大于等于val的元素位置，若是数组，返回指针；若是容器，返回迭代器。
+    upper_bound(first, last, val)返回第一个大于val值的元素位置。
 ```
 
 
