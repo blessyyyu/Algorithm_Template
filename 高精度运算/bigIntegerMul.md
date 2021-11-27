@@ -1,5 +1,9 @@
 ## 高精度 * 低精度
 
+思路：
+
+用`vector<int> A`里的每一个数去乘以b，将每次的结果%10的值，存到`res`里，进位传递到下一个循环里。
+
 ```c++
 #include <iostream>
 #include <vector>
@@ -58,6 +62,10 @@ int main()
 
 ## 高精度 * 高精度
 
+思路：
+
+![image-20211119200820633](bigIntegerMul.assets/image-20211119200820633.png)
+
 
 
 ```c++
@@ -65,6 +73,7 @@ int main()
 #include <vector>
 
 using namespace std;
+
 
 vector<int> mul(vector<int> &A, vector<int> &B) {
     vector<int> C(A.size() + B.size(), 0); // 初始化为 0，且999*99最多 5 位

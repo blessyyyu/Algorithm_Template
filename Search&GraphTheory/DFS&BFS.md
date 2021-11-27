@@ -39,7 +39,7 @@ BFS算法,从数据结构来看：使用队列queue, 所需要的空间是$O(2^h
 
 ```c++
 // 由于深度优先遍历必须要有一个能够记录节点是否被访问过的变量
-// 或者能不能访问当前这个点
+// 或者能不能访问当前这个点，剪枝
 bool st[N];
 // 八皇后里,需要三个Bool变量
 bool col[N], dg[N], udg[N];
@@ -136,6 +136,109 @@ int main(){
 }
 
 ```
+
+
+
+### Leetcode 78 (Hot100) 子集
+
+给你一个整数数组 `nums` ，数组中的元素 **互不相同** 。返回该数组所有可能的子集（幂集）。
+
+解集 **不能** 包含重复的子集。你可以按 **任意顺序** 返回解集。
+
+**示例 1：**
+
+
+
+```
+输入：nums = [1,2,3]
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [0]
+输出：[[],[0]]
+```
+
+**提示：**
+
+- `1 <= nums.length <= 10`
+- `-10 <= nums[i] <= 10`
+- `nums` 中的所有元素 **互不相同**
+
+
+
+#### 思路和解答
+
+- 方法1： dfs递归法
+
+每一个数选或者不选实际上构成一棵决策树的形式，并且这棵决策树是完全二叉树。
+
+不需要使用`st[]`的原因是，在`nums`向量中，从前往后选，人为控制`u + 1`，这样就只能沿着一个方向走，不需要使用st[]。
+
+
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> res;
+    vector<int> path;
+
+    void dfs(vector<int> & nums, int u){
+        // 当走到子节点，全部数都决策完
+        if(u >= nums.size()){
+            res.push_back(path);
+            return;
+        }
+        // 选择第u个数
+        path.push_back(nums[u]);
+        dfs(nums, u + 1);
+		// 弹出最后一个选的数
+        path.pop_back();
+        dfs(nums, u + 1);
+        
+    }
+
+
+    vector<vector<int>> subsets(vector<int>& nums) {
+        dfs(nums, 0);
+        return res;
+    }
+};
+```
+
+
+
+- 方法2：二进制方案迭代法
+
+nums的长度为n， 每个元素都有选或者不选两种，那么最后`res.size()` = $2 ^ n$， 正好对应长度为n的二进制数的所有表达。比如000~111。 
+
+这样我们可以枚举$0 - 2^n-1$, 其中每一种方案里，相应位数为1的，则表示选择这个元素；反之为0，则表示不选这个元素。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector< vector<int> > res;
+        
+        int len = nums.size();
+        for(int i = 0; i < (1 << len); i ++){
+            vector<int> temp;
+            // 枚举每一位
+            for(int j = 0; j < len; j++){
+                if( i >> j & 1) temp.push_back(nums[j]);
+            }
+            res.push_back(temp);
+        }
+        return res;
+    }
+};
+```
+
+
+
+
 
 
 
