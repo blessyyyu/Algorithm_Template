@@ -615,7 +615,7 @@ int main()
 
 ![image-20211122210449252](C:\Users\blessyuuu\AppData\Roaming\Typora\typora-user-images\image-20211122210449252.png)
 
-当在区间[L, R]里选择结点K作为树的根节点时，[L, K-1]区间都可以作为根节点的左子树，[K+1 , R] 区间都可以作为根节点的右子树。那么以K作为根节点的所有二叉搜索树 的种数 = 左边区间的所有种数 $\times$ 右边区间的所有种数
+当在区间`[L, R]`里选择结点K作为树的根节点时，`[L, K-1]`区间都可以作为根节点的左子树，`[K+1 , R]` 区间都可以作为根节点的右子树。那么以K作为根节点的所有二叉搜索树 的种数 = 左边区间的所有种数 $\times$ 右边区间的所有种数
 
 ```c++
 
@@ -633,6 +633,62 @@ public:
             }
         }
         return f[n];
+    }
+};
+```
+
+
+
+### Leetcode 1866 
+
+[1866. 恰有 K 根木棍可以看到的排列数目 - 力扣（LeetCode） (leetcode-cn.com)](https://leetcode-cn.com/problems/number-of-ways-to-rearrange-sticks-with-k-sticks-visible/)
+
+有 n 根长度互不相同的木棍，长度为从 1 到 n 的整数。请你将这些木棍排成一排，并满足从左侧 可以看到 恰好 k 根木棍。从左侧 可以看到 木棍的前提是这个木棍的 **左侧** 不存在比它 **更长的** 木棍。
+
+例如，如果木棍排列为 [1,3,2,5,4] ，那么从左侧可以看到的就是长度分别为 1、3 、5 的木棍。
+给你 n 和 k ，返回符合题目要求的排列 数目 。由于答案可能很大，请返回对 $10^9 + 7$ 取余 的结果。
+
+```
+输入：n = 3, k = 2
+输出：3
+解释：[1,3,2], [2,3,1] 和 [2,1,3] 是仅有的能满足恰好 2 根木棍可以看到的排列。
+
+
+输入：n = 5, k = 5
+输出：1
+解释：[1,2,3,4,5] 是唯一一种能满足全部 5 根木棍可以看到的排列。
+```
+
+
+
+
+
+#### 思路与解答
+
+- 状态表示：
+  - 用`f[n][k]`来表示有n根木棍，恰好可以看到k根木棍的所有方案。
+  - 属性： count，方案数。
+- 状态计算：
+
+从最后一根开始思考：
+
+![image-20211129224051593](C:\Users\blessyuuu\AppData\Roaming\Typora\typora-user-images\image-20211129224051593.png)
+
+```c++
+typedef long long LL;
+const int N = 1010, mod = 1e9 + 7;
+class Solution {
+public:
+    int f[N][N];
+    int rearrangeSticks(int n, int k) {
+        memset(f, 0 , sizeof f);
+        for(int i = 1; i <= n; i ++)    f[i][i] = 1;
+
+        for(int i = 2; i <= n; i ++)
+            for(int j = 1; j <= i - 1; j ++)
+                f[i][j] = (f[i-1][j-1] + (LL)(i - 1) * f[i-1][j] % mod) % mod;
+
+        return f[n][k];
     }
 };
 ```
