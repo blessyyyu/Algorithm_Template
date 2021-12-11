@@ -238,6 +238,84 @@ public:
 
 
 
+
+
+### Leetcode 270场Leetcode周赛
+
+[5944. 从二叉树一个节点到另一个节点每一步的方向 - 力扣（LeetCode） (leetcode-cn.com)](https://leetcode-cn.com/problems/step-by-step-directions-from-a-binary-tree-node-to-another/)
+
+给你一棵 二叉树 的根节点 root ，这棵二叉树总共有 n 个节点。每个节点的值为 1 到 n 中的一个整数，且互不相同。给你一个整数 **startValue** ，表示起点节点 s 的值，和另一个不同的整数 **destValue** ，表示终点节点 t 的值。
+
+请找到从节点 s 到节点 t 的 **最短路径** ，并以字符串的形式返回每一步的方向。每一步用 大写 字母 'L' ，'R' 和 'U' 分别表示一种方向：
+
+'L' 表示从一个节点前往它的 左孩子 节点。
+'R' 表示从一个节点前往它的 右孩子 节点。
+'U' 表示从一个节点前往它的 父 节点。
+请你返回从 s 到 t 最短路径 每一步的方向。
+
+
+
+![image-20211205142224714](C:\Users\blessyuuu\AppData\Roaming\Typora\typora-user-images\image-20211205142224714.png)
+
+
+
+#### 思路与解答：
+
+非常经典的DFS解法，首先找`root ~ startValue`与`root ~ destValue`的路径里的最近公共节点`commonAncestor`，再把`startValue ~ commonAncestor `部分改成字符串"U", 其余的使用`root ~ destValue`里`commonAncestor ~ destValue`那一段的路径。
+
+
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    string path, pathd, paths;
+
+    void dfs(TreeNode * root, int startValue, int destValue){
+        if(root -> val == startValue)    paths = path;
+        if(root -> val == destValue)    pathd = path;
+        if(root -> right){
+            path += 'R';
+            dfs(root -> right, startValue, destValue);
+            // dfs的回溯
+            path.pop_back();
+        }
+
+        if(root -> left){
+            path += 'L';
+            dfs(root -> left, startValue, destValue);
+            // dfs的回溯
+            path.pop_back();
+        }
+    }
+
+    string getDirections(TreeNode* root, int startValue, int destValue) {
+        dfs(root, startValue, destValue);    
+        int i = 0, j = 0;
+        while( paths[i] == pathd[j])    i++, j++;
+        return string(paths.size() - i , 'U') + pathd.substr(j);
+    }
+};
+```
+
+
+
+
+
+
+
+
+
 ### 经典例题2 n-皇后问题：
 
 n−皇后问题是指将 n 个皇后放在 n×n 的国际象棋棋盘上，使得皇后不能相互攻击到，即任意两个皇后都不能处于同一行、同一列或同一斜线上。

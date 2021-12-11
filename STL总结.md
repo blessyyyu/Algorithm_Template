@@ -11,6 +11,11 @@ a.empty();
 a.size();				// empty()和size() 是所有容器都有的，时间复杂度为O(1)
 a.clear();             // 并不是所有容器都有清空的函数clear()
 vector.swap(vector2);
+v.insert(v.begin(),8);//在最前面插入新元素。  
+v.insert(v.begin()+2,1);//在迭代器中第二个元素前插入新元素  
+v.insert(v.end(),3);//在向量末尾追加新元素。  
+v.insert(v.end(),4,1);//在尾部插入4个1
+
 ```
 
 倍增的思想：

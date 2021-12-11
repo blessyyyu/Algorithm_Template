@@ -275,3 +275,74 @@ int main(){
 }
 ```
 
+
+
+
+
+### Leetcode 135分发糖果（记忆化搜索）
+
+https://leetcode-cn.com/problems/candy/
+
+老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。
+
+你需要按照以下要求，帮助老师给这些孩子分发糖果：
+
+每个孩子至少分配到 1 个糖果。
+评分更高的孩子必须比他两侧的邻位孩子获得更多的糖果。
+那么这样下来，老师至少需要准备多少颗糖果呢？
+
+```
+输入：[1,0,2]
+输出：5
+解释：你可以分别给这三个孩子分发 2、1、2 颗糖果。
+```
+
+
+
+```
+输入：[1,2,2]
+输出：4
+解释：你可以分别给这三个孩子分发 1、2、1 颗糖果。
+     第三个孩子只得到 1 颗糖果，这已满足上述两个条件。
+```
+
+
+
+#### 思考与解答
+
+此题的思路实际上是在这个数组中，从位置`i`开始，往左和往右看，如果左边`i-1`的位置和右边`i+1`的位置里的元素值比位于位置`i`的元素小，则取左右的糖果的最大值 + 1.
+
+```c++
+class Solution {
+public:
+    // 方向向量
+    int dx[2] = {-1, 1};
+    // 一维dp，存储糖果值
+    vector<int> f;
+    int n;
+    int candy(vector<int>& ratings) {
+        n = ratings.size();
+        f.resize(n);
+        fill(f.begin(), f.end(), -1);
+        int res = 0;
+        for(int i = 0; i < n ; i ++){
+            res += dp(ratings, i);
+        }
+        return res;
+    }
+
+    // 经典记忆化搜索dp + 贪心思想
+    int dp(vector<int> & ratings, int x){
+        if(f[x] != -1)  return f[x];
+        f[x] = 1;
+        for(int i = 0; i < 2; i ++){
+            int a = x + dx[i];
+            if(a < 0 || a >= n)     continue;
+            if( ratings[a] < ratings[x] )    f[x] = max(f[x], dp(ratings, a) + 1);
+        }
+        return f[x];
+    }
+};
+
+```
+
