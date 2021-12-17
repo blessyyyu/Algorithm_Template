@@ -169,13 +169,15 @@ upper_bound(x)	返回大于x的最小的数的迭代器，不存在返回end();
 
 ```c++
 insert();     // 插入的数是一个pair
-erase();     // 输入的参数是pair或者迭代器
+erase();     // 输入的参数是pair或者迭代器键值对
 find();
 [];          //可以像用数组一样使用map, 时间复杂度是O(logn),数组的下标是O(1)
 iter->first; iter->second;
 map<string, int> a;
 a["yxc"] = 1;
 cout<< a["yxc"]<<endl;
+
+
 ```
 
 
@@ -184,7 +186,17 @@ cout<< a["yxc"]<<endl;
 
 基于哈希表来实现的， 和上面类似，增删改查的时间复杂度是O(1)；
 
-缺点是不支持lower_bound() / upper_bound(), 也不支持迭代器的++ 和 --
+缺点是不支持lower_bound() / upper_bound(), 也不支持迭代器的++ 和 --;
+
+```c++
+// //复制一个已有的unordered_map
+unordered_map<char, int> hs(hw);
+
+// 注意，如果要判断hash表中是否含有某个键，不能用if(map[key] == 0) ，这会自动建立一个key
+if(map.count(key)){}
+```
+
+
 
 ### bitset
 
