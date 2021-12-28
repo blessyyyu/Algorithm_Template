@@ -611,6 +611,112 @@ int main() {
 
 
 
+### Leetcode417 太平洋大西洋水流问题
+
+>https://leetcode-cn.com/problems/pacific-atlantic-water-flow/
+
+给定一个 m x n 的非负整数矩阵来表示一片大陆上各个单元格的高度。“太平洋”处于大陆的左边界和上边界，而“大西洋”处于大陆的右边界和下边界。
+
+规定水流只能按照上、下、左、右四个方向流动，且只能从高到低或者在同等高度上流动。
+
+请找出那些水流既可以流动到“太平洋”，又能流动到“大西洋”的陆地单元的坐标。
+
+**提示：**
+
+1. 输出坐标的顺序不重要
+2. *m* 和 *n* 都小于150
+
+
+
+**示例：**
+
+ ```
+ 给定下面的 5x5 矩阵:
+ 
+   太平洋 ~   ~   ~   ~   ~ 
+        ~  1   2   2   3  (5) *
+        ~  3   2   3  (4) (4) *
+        ~  2   4  (5)  3   1  *
+        ~ (6) (7)  1   4   5  *
+        ~ (5)  1   1   2   4  *
+           *   *   *   *   * 大西洋
+ 
+ 返回:
+ 
+ [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]] (上图中带括号的单元).
+ ```
+
+
+
+#### 思路与解答：
+
+要求矩阵中有哪些点可以沿着非递增序列同时流到左上边界或者右下边界；我们可以知道，最左边的一列和最上面的一行肯定可以流到太平洋去，同理最下面一行和最右边一列肯定可以流到大西洋去。
+
+题目就需要可以**反向思考**，从这些已知的点出发，按照非递减顺序，遍历整个图，更新所有点的状态，这样再遍历一次整个图的状态，就能知道哪些点既能留到太平洋，又能留到大西洋了。
+
+时间复杂度为两次遍历整个图，O(n^2);
+
+- 小技巧：表示状态时，可以开辟两个bool数组，也可以仅仅开辟一个int数组；利用位运算的方法来求解是否都满足，这样代码写起来就会非常简洁；
+- 比如用int型数的二进制的最后一位0，1表示一个状态a，二进制的倒数第二位为0或1表示另一个状态b；如果a,b都满足，则值为3.
+
+```
+st[x][y] = 1 表示能流到太平洋去， st[a][b] = 2表示能流到大西洋去； st[x][y] & st[a][b]  = 0;
+都满足 1 | 2 = 3
+```
+
+
+
+```c++
+class Solution {
+public:
+    // 这里不同于题目的规定m * n, 而是看成平时常用的n * m
+    int m,n;
+    vector<vector<int>> g;
+
+    vector<vector<int>> st;
+    int dx[4] = {-1, 0, 1, 0}, dy[4] = {0, 1, 0, -1};
+    vector<vector<int>> pacificAtlantic(vector<vector<int>>& heights) {
+        g = heights;
+        if(g.empty() || g[0].empty())   return {};
+        n = g.size(), m = g[0].size();
+        st = vector<vector<int>>(n, vector<int>(m));
+        
+        for(int i = 0; i < n; i ++)  dfs(i, 0, 1);
+        for(int i = 0; i < m; i ++)     dfs(0, i, 1);
+        for(int j = 0; j < n; j ++)     dfs(j, m-1, 2);
+        for(int j = 0; j < m; j ++)     dfs(n-1, j, 2);
+
+        vector<vector<int>> res;
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j ++){
+                if(st[i][j] == 3){
+                    res.push_back({i,j});
+                }
+            }
+        }
+
+        return res;
+    }
+
+    void dfs(int x, int y, int t){
+        // 1 & 1 > 0 return; 1 & 2 == 0 continue; 2 & 2 = 2 > 0 return; 0 & 1 == 0 continue; 0 & 2 == 0 continue;
+        if(st[x][y] & t)    return;
+        st[x][y] |= t;
+        for(int i = 0; i < 4; i ++){
+            int a = x + dx[i], b = y + dy[i];
+            if(a >= 0 && a < n && b >= 0 && b < m && g[a][b] >= g[x][y])
+                dfs(a, b, t);
+        }
+    }
+};
+```
+
+
+
+---
+
+
+
 ### BFS
 
 图的边权都是1的时候，计算最短距离用BFS解答；
