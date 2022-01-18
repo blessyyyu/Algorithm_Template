@@ -15,8 +15,45 @@ v.insert(v.begin(),8);//在最前面插入新元素。
 v.insert(v.begin()+2,1);//在迭代器中第二个元素前插入新元素  
 v.insert(v.end(),3);//在向量末尾追加新元素。  
 v.insert(v.end(),4,1);//在尾部插入4个1
+v.erase():           // 有两种函数原型：
+	iteratorerase(iterator position);                    // 删除某个迭代器位置的元素
+	iteratorerase(iterator first, iterator last);			// 删除一段迭代器的位置
 
 ```
+
+关于`erase()`函数的常见使用错误：
+
+```c++
+// 下面这段使用是错误的，因为erase(iter)后，iter成为了野指针，给野指针++会导致内存错误
+for(auto iter=vec.begin();iter!=vec.end(); iter++)
+{
+      if(*iter == 3)
+            veci.erase(iter);
+}
+
+// 正确写法
+for(auto iter=vec.begin();iter!=vec.end(); )
+{
+     if( *iter == 3)
+          iter = veci.erase(iter);//当删除时erase函数自动指向下一个位置，就不需要进行++
+      else
+            iter ++ ;    //当没有进行删除的时候，迭代器++
+}
+
+
+```
+
+
+
+解决删除连续数字的一种方法：
+
+```c++
+veci.erase(remove(vec.begin(),vec.end(),3),vec.end());
+```
+
+
+
+
 
 倍增的思想：
 

@@ -380,7 +380,7 @@ Q...
 #include<iostream>
 
 using namespace std;
-
+// 这里的N注意一定要是n最大值的两倍以上，因为dg[]的部分要用到两倍的部分；
 const int N = 20;
 
 //  全排列的思路
@@ -483,6 +483,78 @@ int main(){
 #### 两种解答总结
 
 方法一一般速度较快，方法二更容易理解；推荐记忆方法一。
+
+
+
+### 经典bfs爆搜题  解数独
+
+>
+> 链接：https://leetcode-cn.com/problems/sudoku-solver
+
+编写一个程序，通过填充空格来解决数独问题。
+
+数独的解法需 遵循如下规则：
+
+数字 1-9 在每一行只能出现一次。
+数字 1-9 在每一列只能出现一次。
+数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。（请参考示例图）
+数独部分空格内已填入了数字，空白格用 '.' 表示。
+
+![image-20220106211805293](DFS&BFS.assets/image-20220106211805293.png)
+
+提示：
+
+board.length == 9
+board[i].length == 9
+`board[i][j] `是一位数字或者 '.'
+题目数据 保证 输入数独仅有一个解
+
+```c++
+class Solution {
+public:
+    bool row[9][9], col[9][9], field[3][3][9];
+    void solveSudoku(vector<vector<char>>& board) {
+        memset(row, 0, sizeof row);
+        memset(col, 0, sizeof col);
+        memset(field, 0, sizeof field);
+
+        for(int i = 0; i < 9; i ++){
+            for(int j = 0; j < 9; j ++){
+                if(board[i][j] != '.'){
+                    int num = board[i][j] - '1';
+                    row[i][num] = col[j][num] = field[ i / 3][j / 3][num] = true;
+                }
+            }
+        }
+
+        dfs(board, 0, 0);
+    }
+    
+
+    bool dfs(vector<vector<char>> & g, int x, int y){
+        // 这里有列有行，格子位置的变化要注意！
+        if( y == 9) x++, y = 0;
+        if(x == 9)  return true;
+
+        if(g[x][y] != '.')  return dfs(g, x, y + 1);
+
+        for(int i = 0; i < 9; i ++){
+            if(!row[x][i] && !col[y][i] && !field[x/3][y/3][i]){
+                g[x][y] = '1' + i;
+                row[x][i] = col[y][i] = field[x/3][y/3][i] = true;
+                if(dfs(g, x , y + 1))   return true;
+                g[x][y] = '.';
+                row[x][i] = col[y][i] = field[x/3][y/3][i] = false;                            
+            }
+        }
+
+        return false;
+    }
+
+};
+```
+
+
 
 
 
@@ -1293,5 +1365,203 @@ int main(){
 
     return 0;
 }
+```
+
+
+
+### 多源BFS经典问题
+
+> https://leetcode-cn.com/problems/01-matrix/submissions/
+
+给定一个由 0 和 1 组成的矩阵 mat ，请输出一个大小相同的矩阵，其中每一个格子是 mat 中对应位置元素到最近的 0 的距离。
+
+两个相邻元素间的距离为 1 。
+
+![image-20220112134458236](DFS&BFS.assets/image-20220112134458236.png)
+
+**提示：**
+$$
+m == mat.length   \\
+n == mat[i].length \\
+1 <= m, n <= 10^4 \\
+1 <= m * n <= 10^4 \\
+mat[i][j] \space is \space either \space  0  \space or \space 1. \\
+mat 中至少有一个 0 
+$$
+
+
+#### 思路与模板
+
+整个矩阵只充满两种元素，要求一堆元素到另一堆元素之间的最小距离。在图论问题中多源距离通常可以构造一个虚拟的源结点，并将这个虚拟的源结点到第一批结点之间的距离构造为（0或者1），又因为所有格子之间的距离为1，所以可以使用BFS来求距离。
+
+BFS需要一个队列，只需要把所有的矩阵中的0（**把问题中距离的目标**）都放入队列中初始化队列元素，达到虚拟源结点的效果。
+
+> 把目标作为起点反向求距离，也是经常使用的方法！
+
+```c++
+#define x first
+#define y second
+class Solution {
+public:
+    typedef pair<int, int> PII;
+    vector<vector<int>> res;
+    queue<PII> q;
+    int dx[4] = {-1, 0, 1, 0}, dy[4] = {0, 1, 0, -1};
+    int n,m;
+    vector<vector<int>> updateMatrix(vector<vector<int>>& mat) {
+        n = mat.size(), m = mat[0].size();
+        // 用-1来表示是否被访问过 经典做法
+        res = vector<vector<int>>(n, vector<int>(m, -1));
+        for(int i = 0; i < n; i ++){
+            for(int j = 0; j < m; j ++){
+                if(mat[i][j] == 0){
+                    // 把所有初始结点放入队列中
+                    q.push({i,j});
+                    res[i][j] = 0;
+                }   
+            }
+        }
+
+        while(q.size()){
+            auto t = q.front();
+            q.pop();
+            for(int i = 0; i < 4; i ++){
+                int a = t.x + dx[i], b = t.y + dy[i];
+                if(a >= 0 && a < n && b >= 0 && b < m && res[a][b] == -1){
+                    res[a][b] = res[t.x][t.y] + 1;
+                    q.push({a,b});
+                }
+            }
+        }
+        return res;
+    }
+
+
+};
+```
+
+
+
+
+
+
+
+
+
+### Leetcode经典题目 多源bfs + dfs + 格子找寻 最短的桥 
+
+> https://leetcode-cn.com/problems/shortest-bridge/
+
+You are given an `n x n` binary matrix grid where `1` represents land and `0` represents water.
+
+An island is a 4-directionally connected group of 1's not connected to any other 1's. There are exactly two islands in grid.
+
+You may change 0's to 1's to connect the two islands to form one island.
+
+Return the smallest number of 0's you must flip to connect the two islands.
+
+
+
+**Example 1:**
+
+```
+Input: grid = [[0,1],[1,0]]
+Output: 1
+```
+
+**Example 2:**
+
+```
+Input: grid = [[0,1,0],[0,0,0],[0,0,1]]
+Output: 2
+```
+
+**Example 3:**
+
+```
+Input: grid = [[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]]
+Output: 1
+```
+
+
+
+**Constraints:**
+
+```
+n == grid.length == grid[i].length
+2 <= n <= 100
+grid[i][j] is either 0 or 1.
+There are exactly two islands in grid.
+```
+
+
+
+#### 思路和解答：
+
+题目的意思其实是，整个地图上有两堆岛屿（由1构成），他们之间被0阻隔开来，题目要求的就是，将0翻转成1后，两堆连在一起的最小翻转次数，也就是两堆岛屿之间的最小距离 - 1；
+
+
+
+首先找1，然后通过dfs遍历整个岛屿所有的1，将它们的坐标全部存在queue中，然后依次出队，利用`bfs()`每次多寻找一次，直到遇到下一个岛屿中的1。
+
+
+
+```c++
+#define x first
+#define y second
+typedef pair<int, int> PII;
+class Solution {
+public:
+    vector<vector<int>> g;
+    int n,m;
+    int dx[4] = {-1, 0, 1, 0}, dy[4] = {0, 1, 0, -1};
+    queue<PII> q;
+    vector<vector<int>> dist;
+    int shortestBridge(vector<vector<int>>& grid) {
+        g = grid;
+        n = g.size(), m = g[0].size();
+        dist = vector<vector<int>> (n, vector<int>(m, 1e8));
+        for(int i = 0; i < n; i ++){
+            for(int j = 0; j < m; j++){
+                if(g[i][j]){
+                    dfs(i,j);
+                    return bfs();
+                }
+            }
+        }
+        return -1;
+    }
+
+    void dfs(int x, int y){
+        dist[x][y] = 0;
+        g[x][y] = 0;
+        q.push({x,y});   
+        for(int i = 0; i < 4; i ++){
+            int a = x + dx[i], b = y + dy[i];
+            if(a >= 0 && a < n && b >= 0 && b < m && g[a][b]){
+                dfs(a,b);
+            }
+        }
+    }
+
+    int bfs(){
+        while(q.size()){
+            auto t = q.front();
+            q.pop();
+            for(int i = 0; i < 4; i++){
+                int a = t.x + dx[i], b = t.y + dy[i];
+                if(a >= 0 && a < n && b >=0 && b < m && dist[a][b] > dist[t.x][t.y] + 1){
+                    dist[a][b] = dist[t.x][t.y] + 1;
+                    // 这里 -1 的目的就是距离为2的，只需要翻转1次即可
+                    if(g[a][b])   return dist[a][b] - 1;
+                    q.push({a,b});
+                }
+            }
+        }
+
+        return -1;
+    }
+
+};
 ```
 
