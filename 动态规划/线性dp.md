@@ -243,7 +243,7 @@ $−10^9≤数列中的数≤10^9$
 
 * 状态表示：`f[i]`，表示以下标`i`结尾的所有子序列的集合。
 
-  * 属性：max，`f[i]=x`，x为最长的子序列。
+  * 属性：max，`f[i]=x`，x为最长的子序列的长度
 
 * 状态计算：（状态的计算要求能够计算之前的每一个状态，递推到现在的状态）
 
@@ -303,7 +303,7 @@ int main(){
 >
 > 例子: 数据是1 3 6 2 8 9， 最长上升子序列明显是 1 3 6 8 9， 但是严格单调的数组最终里保存的是1 2 6 8 9， 但是数组的长度表示的是最长子序列的长度。
 
-
+总的时间复杂度是O(nlogn)
 
 ```c++
 #include <bits/stdc++.h>
@@ -322,6 +322,7 @@ int main(){
         if(a[i] > stk.back())
             stk.push_back(a[i]);
         else{
+            // lower_bound()的原理是二分查找，时间复杂度是O(logn); 
             *lower_bound(stk.begin(), stk.end(), a[i]) = a[i];	  
         }
     }
@@ -519,6 +520,32 @@ int main(){
     return 0;
     
 }
+
+// 更加简洁的写法
+// leetcode 72 编辑距离
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n = word1.size();
+        int m = word2.size();
+        word1 = " " + word1;
+        word2 = " " + word2;
+        vector<vector<int>> f = vector<vector<int>>(n + 1, vector<int>(m + 1));
+        for(int i = 1; i <= n; i ++)    f[i][0] = i;
+        for(int j = 1; j <= m; j ++)    f[0][j] = j;
+        
+        for(int i = 1; i <= n; i ++){
+            for(int j = 1; j <= m; j ++){
+                if(word1[i] == word2[j])    f[i][j] = f[i-1][j-1];
+                else{
+                    // 第一项是修改，第二项是删除word1[i], 第三项是增加word2[j]
+                    f[i][j] =  min(f[i-1][j-1], min(f[i-1][j] , f[i][j-1]) ) + 1;
+                }
+            }
+        }
+        return f[n][m];
+    }
+};
 ```
 
 
