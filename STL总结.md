@@ -179,7 +179,7 @@ begin()/ end()
 
 ### set,map,multiset, multimap
 
-基于平衡二叉树（红黑树）来实现的，动态维护有序序列；
+基于平衡二叉树（红黑树）来实现的，**动态维护有序序列**；
 
 
 
@@ -232,6 +232,12 @@ unordered_map<char, int> hs(hw);
 
 // 注意，如果要判断hash表中是否含有某个键，不能用if(map[key] == 0) ，这会自动建立一个key
 if(map.count(key)){}
+
+
+// 遍历map的一种简单写法，适合用于写算法
+for (auto [k, v] : map) {
+    cout << k << " " << v << endl;
+}
 ```
 
 
@@ -578,6 +584,21 @@ int main() {
 * `<algorithm>`是所有STL头文件中最大的一个，范围涉及到比较、 交换、查找、遍历操作、复制、修改等等
 * `<numeric>`体积很小，只包括几个在序列上面进行简单数学运算的模板函数
 * `<functional>`定义了一些模板类,用以声明函数对象。
+
+
+
+#### 去重技巧：
+
+```c++
+1. sort + erase + unique
+sort(nums.begin(), nums.end());
+nums.erase(unique(nums.begin(), nums.end()), nums.end());
+
+2. 放在set里
+set.insert(num);
+```
+
+
 
 
 
