@@ -9,6 +9,7 @@ bool cmp(vector<int> & A, vector<int>& B){
     for(int i = A.size() -1 ; i>=0; i--){
         if(A[i] != B[i])    return A[i] > B[i];
     }
+    //注意这里如果两个值完全相等，应该返回true,这样后面等于0的结果也不会有-号.
     return true;
 }
 
@@ -33,7 +34,6 @@ int main() {
 	string a, b;
 	cin >> a >> b;
 	vector<int> A, B;
-
 	for (int i = a.size() - 1; i >= 0; i--)    A.push_back(a[i] - '0');      // 9 8 7 6
 	for (int i = b.size() - 1; i >= 0; i--)    B.push_back(b[i] - '0');
 	vector<int> C;
@@ -45,4 +45,5 @@ int main() {
 	}
 	
 	for (int i = C.size() - 1; i >= 0; i--)   printf("%d", C[i]);
+	return 0;
 }

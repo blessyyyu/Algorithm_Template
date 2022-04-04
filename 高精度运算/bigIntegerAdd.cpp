@@ -6,9 +6,8 @@ using namespace std;
 
 vector<int> m_add(vector<int>&A, vector<int> &B) {
 	vector<int> C;
-	int i = 0;
 	int t = 0;
-	for (int i = 0; i < A.size()|| i<B.size(); i++)
+	for (int i = 0; i < A.size() || i<B.size(); i++)
 	{
 		if (i < A.size())	t += A[i];
 		if (i < B.size())	t += B[i];

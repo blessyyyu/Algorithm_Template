@@ -6,7 +6,7 @@
 #include <cctype>
 
 using namespace std;
-
+// map's initial is different from python.
 unordered_map<char, int> pr = {{'+', 1}, {'-', 1}, {'*', 2}, {'/', 2}};
 
 stack<int> num;
@@ -16,6 +16,8 @@ string s;
 
 void eval()
 {
+	// two num pop and one operator pop
+	// result push into stack
     int a = num.top();
     num.pop();
     int b = num.top();
@@ -58,6 +60,7 @@ int main()
                 x = x * 10 + s[j] - '0';
                 j++;
             }
+            // important
             i = j - 1;
             // x计算完一定要记得放入到num里
             num.push(x);
@@ -74,6 +77,7 @@ int main()
         }
         else
         {
+        	// important
             while (op.size() && pr[s[i]] <= pr[op.top()])
             {
 				// 先把栈中的高优先级符号的运算先计算了
