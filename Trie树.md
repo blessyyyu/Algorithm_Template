@@ -139,7 +139,9 @@ int main() {
 
 
 
-* 方法二：用二维数组来模拟树。**速度大概是第一种方式四倍**, 推荐使用第二种
+* 方法二：用**二维数组**来模拟树。**速度大概是第一种方式四倍**, 推荐使用第二种
+
+该方法的巧妙地利用了字符串中仅包含小写字母，所以每一个节点的子节点最多只有26个，是固定下来的，所以可以用数组来模拟。
 
 ```c++
 #include<iostream>
@@ -147,14 +149,14 @@ int main() {
 using namespace std;
 const int N = 1e5 + 10;
 char mstr[N];
-// son[][]数组存储当前结点的所有子节点, cnt[N]: 存储以当前点结尾的单词有多少个；idx下标
+// son[][]数组存储当前结点的所有子节点下标, cnt[N]: 存储以当前点结尾的单词有多少个；idx下标
 // 下标是0的点，既是根节点，又是空结点
 int idx, son[N][26], cnt[N];
 
 void insert(char str[]){
     // p = 0表示从根节点root开始
     int p = 0;
-    // due to char[] over by '\0'，so we can use str[i] to judge isOver
+    // due to char[] end by '\0'，so we can use str[i] to judge isOver
     // for循环遍历整个char数组;
     for(int i = 0; str[i]; i ++){
         // u表示当前字母是哪一个
@@ -195,6 +197,105 @@ int main(){
 
 
 
+- 解法三，树也是图，经典邻接表建图的方法。
+
+```c++
+#include<bits/stdc++.h>
+
+using namespace std;
+
+const int N = 2e4 + 10,M = 26;
+int n;
+int h[M], e[N], ne[N], idx;
+unordered_map<string , int > trie_map;
+
+void add(int a, int b){     // 添加一条从a -> b的有向边
+    e[idx] = b, ne[idx] = h[a], h[a] = idx++;
+}
+
+void insert(string x){
+    if(trie_map.count(x)){
+        trie_map[x]+=1;
+        return;
+    } 
+    for(int i = 1; i < x.size(); i ++){
+        int pre = x[i-1] - 'a';
+        int cur = x[i] - 'a';
+        add(pre,cur);
+        if(i == x.size() - 1){
+            trie_map[x] += 1;
+        }
+    }
+}
+
+int query(string x){
+    return trie_map[x];
+}
+
+int main(){
+    cin >> n;
+    char op[2];
+    while(n -- ){
+        cin >> op;
+        if(op[0] == 'I'){
+            string x;
+            cin >> x;
+            insert(x);
+        }else{
+            string x;
+            cin >> x;
+            cout << query(x) << endl;
+        }
+    }
+    return 0;
+}
+```
+
+
+
+- 方法四：最简单直接用`unordered_map<string, int>`.
+
+```c++
+#include<bits/stdc++.h>
+
+using namespace std;
+
+unordered_map<string, int> trie_map;
+int n;
+
+void insert(string x){
+    trie_map[x] += 1;
+}
+
+int query(string x){
+    return trie_map[x];
+}
+
+int main(){
+    cin >> n;
+    char op[2];
+    while(n--){
+        cin >> op;
+        if(op[0]=='I'){
+            string x;
+            cin >> x;
+            insert(x);
+        }else{
+            string x;
+            cin >> x;
+            cout << query(x) << endl;
+        }
+    }
+    return 0;
+}
+```
+
+
+
+
+
+
+
 ### 典型例题2： 最大异或对
 
 在给定的 N 个整数 A1，A2……AN 中选出两个进行 xor（异或）运算，得到的结果最大是多少？
@@ -231,7 +332,9 @@ $$1≤N≤10^5 \\
 
 ![image-20211004233544610](Trie树.assets/image-20211004233544610.png)
 
+思路： 
 
+这里的root没有什么实际意义，它的两个子节点分别表示数字x的二进制表示中最左边的一位是0还是1.
 
 ```c++
 注意： i >= 0 等价于 ~i; 因为i = -1在计算机中表示为1111111...1, 全部取反变为00000..00。
@@ -273,6 +376,7 @@ int query(int x){
             res += 1 << i;          // 左移i位
             p = son[p][!s];         // p往下继续走
         }else{
+            // 如果不存在节点，往另一条路走
             p = son[p][s];
         }
     }

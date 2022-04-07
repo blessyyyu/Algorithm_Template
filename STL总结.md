@@ -1,5 +1,30 @@
 ## STL用于算法
 
+
+
+### C++ 小技巧
+
+自定义`split函数`, 用于C++处理类似 `1,2,3,4`这种输入:
+
+```c++
+vector<string> m_split(string line, char split_char) {
+	vector<string> res;
+	for (int i = 0, j = 0; i < line.size(); i++) {
+		j = i;
+		while ( j < line.size() && line[j] != split_char)    j++;
+		// substr参数第一个表示起始下标，第二个参数是长度， [i, j-1]
+        string word = line.substr(i, j - i);
+		res.push_back(word);
+            i = j;
+        }
+    return res;
+}
+```
+
+
+
+
+
 ### vector
 
 变长数组
@@ -83,13 +108,17 @@ p = make_pair(10,"ysq");
 p = { 20, "abc"}; 
 ```
 
-pair最经典的用法就是某个变量有两个属性，并且要按照其中一个属性来进行排序，就可以把需要排序的属性放到first里
-
-如果某个变量有三个属性：
+pair最经典的用法就是某个变量有两个属性，并且要按照其中一个属性来进行排序，就可以把需要排序的属性放到first里.
 
 ```c++
-pair<int, pair<int,int>> p;
+vector<pair<string, vector<int> >> vec(map.begin(), map.end());    // 初始化一个哈希表
+// 自定义cmp函数
+sort(vec.begin(), vec.end(), cmp);
 ```
+
+
+
+如果某个变量有三个属性：`pair<int, pair<int,int>> p;`
 
 
 
@@ -206,16 +235,14 @@ upper_bound(x)	返回大于x的最小的数的迭代器，不存在返回end();
 * map, multimap
 
 ```c++
-insert();     // 插入的数是一个pair
+insert(make_pair("ysq", 111));     // 插入的数是一个pair
 erase();     // 输入的参数是pair或者迭代器键值对
-find();
+find(key);      // 查找以 key 为键的键值对，如果找到，则返回一个指向该键值对的正向迭代器；反之，则返回一个指向容器中最后一                   个键值对之后位置的迭代器（如果 end() 方法返回的迭代器）
 [];          //可以像用数组一样使用map, 时间复杂度是O(logn),数组的下标是O(1)
 iter->first; iter->second;
 map<string, int> a;
 a["yxc"] = 1;
 cout<< a["yxc"]<<endl;
-
-
 ```
 
 
@@ -229,14 +256,22 @@ cout<< a["yxc"]<<endl;
 ```c++
 // //复制一个已有的unordered_map
 unordered_map<char, int> hs(hw);
-
+// 一个键key, 映射多个值，把多个值放入一个vector中.
+unordered_map<string, vector<int>> m_counter;
+// 初始化空间的方法.
+m_counter[current_word] = vector<int>(3, 0);
 // 注意，如果要判断hash表中是否含有某个键，不能用if(map[key] == 0) ，这会自动建立一个key
 if(map.count(key)){}
 
 
-// 遍历map的一种简单写法，适合用于写算法
+// 遍历map的一种简单写法，适合用于写算法, 需要满足C++17 
 for (auto [k, v] : map) {
     cout << k << " " << v << endl;
+}
+
+//另一种写法
+for (auto iter = map.begin(); iter != map.end(); ++iter) {
+    cout << iter->first << " " << iter->second << endl;
 }
 ```
 
