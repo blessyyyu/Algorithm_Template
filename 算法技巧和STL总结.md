@@ -1,8 +1,6 @@
-## STL用于算法
+## C++ 小技巧
 
-
-
-### C++ 小技巧
+### split函数
 
 自定义`split函数`, 用于C++处理类似 `1,2,3,4`这种输入:
 
@@ -23,7 +21,7 @@ vector<string> m_split(string line, char split_char) {
 
 
 
-
+## STL用于算法
 
 ### vector
 
@@ -156,7 +154,7 @@ q = queue<int>();
 
 ### priority_queue
 
-优先队列,实际上就是堆，默认是大顶堆；
+优先队列,实际上就是堆，**默认是大顶堆**， `less<int>`仿函数, 堆顶元素是最大值。
 
 ```c++
 push(); //插入一个元素
@@ -169,6 +167,9 @@ pop();  //弹出堆顶元素
     #include<queue>
     #include<vector>
     priority_queue<int, vector<int>, greater<int>> heap;       // 小根堆
+
+// 如何自定义比较
+自己写一个仿函数：定义一个类，然后重载bool operator()(int a, int b)函数
 ```
 
 
@@ -804,5 +805,14 @@ int main() {
 set_union(iterator beg1, iterator end1, iterator beg2, iterator end2, iterator dest); 
 //求两个集合的差集  注意:两个集合必须是有序序列
 set_difference(iterator beg1, iterator end1, iterator beg2, iterator end2, iterator dest);
+```
+
+
+
+## 字符串处理函数
+
+```c++
+#include<cctype>
+isalpha()             // 判断一个字符是不是字母，对中文字符会报错。
 ```
 

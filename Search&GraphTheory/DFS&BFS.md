@@ -389,6 +389,7 @@ int n;
 // dg[]表示正对角线， udg[] 表示反对角线，两个bool映射过来的数组使得每一个位置对应一个dg[]和udg[]数组元素
 bool col[N], dg[N], udg[N];
 
+// 这里的u表示第u行，一行一行来设置；前面的全排列问题，只有一行
 void dfs(int u){
     if( u == n){
         for(int i = 0 ; i< n ; i++)  puts(g[i]);
