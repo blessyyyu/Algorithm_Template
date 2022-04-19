@@ -191,7 +191,6 @@ int main(){
         else    printf("%d\n", query(mstr));
     }
     return 0;
-
 }
 ```
 
@@ -398,5 +397,67 @@ int main(){
     cout << res << endl;
     
 }
+```
+
+
+
+### Leetcode 820 单词的压缩编码 前缀树的应用：颠倒改为后缀树
+
+>  https://leetcode-cn.com/problems/short-encoding-of-words/
+
+```
+输入：words = ["time", "me", "bell"]
+输出：10
+解释：一组有效编码为 s = "time#bell#" 和 indices = [0, 2, 5] 。
+words[0] = "time" ，s 开始于 indices[0] = 0 到下一个 '#' 结束的子字符串，如加粗部分所示 "time#bell#"
+words[1] = "me" ，s 开始于 indices[1] = 2 到下一个 '#' 结束的子字符串，如加粗部分所示 "time#bell#"
+words[2] = "bell" ，s 开始于 indices[2] = 5 到下一个 '#' 结束的子字符串，如加粗部分所示 "time#bell#"
+```
+
+
+
+**题意解析**： 即如果其中有一个单词是另一个单词的后缀，则可以把这两个单词压缩在一起，用indice来分别表示它们的起始位置。
+
+由于前缀树`Trie`是针对字符串相同的前缀，走相同的节点路径。因此可以把每个单词翻转一下，存入前缀树中。最后要求的压缩编码的长度实际上就是前缀树中所有叶子节点所在的单词的长度 + 1（#号）， 累加起来输出即可。
+
+```c++
+// 存储所有可能的节点长度
+const int N = 2000 * 7 + 10;
+// cnt[N] 来表示第i个节点有几个子节点，如果cnt[i] == 0, 则它是叶结点
+// len[N] 表示第i个节点作为叶子节点结束的时候，单词长度是多少。
+int son[N][26], cnt[N], len[N], idx;
+
+class Solution {
+public:
+    void insert(string & word){
+        // p 表示节点编号
+        int p = 0;
+        for(auto c : word){
+            int u = c - 'a';
+            if(!son[p][u])  son[p][u] = ++idx;
+            cnt[p] += 1;
+            p = son[p][u];
+        }
+        len[p] = word.size();
+    }   
+    int minimumLengthEncoding(vector<string>& words) {
+        memset(son, 0, sizeof son);
+        memset(cnt, 0, sizeof cnt);
+        memset(len, 0, sizeof len);
+        idx = 0;
+        for(auto & word : words){
+            // 翻转单词
+            reverse(word.begin(), word.end());
+            insert(word);
+        }
+        int res = 0;
+        for(int i = 1; i <= idx; i ++){
+            if(!cnt[i]){
+                res += len[i] + 1;
+            }
+        }
+        return res;   
+    }
+};
 ```
 
