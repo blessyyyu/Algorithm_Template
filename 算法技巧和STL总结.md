@@ -118,6 +118,20 @@ sort(vec.begin(), vec.end(), cmp);
 
 如果某个变量有三个属性：`pair<int, pair<int,int>> p;`
 
+注意：在`hashmap`或者`hashset`中，`pair<int, int> `不能单独作为键值对中的key值，因为C++中会自动把key值作一个hash函数，而`pair<type, type> `型，编译器没有自动指定hash函数，需要手动添加：
+
+一种简单的hash方法如下：
+
+```c++
+struct SimplePairHash {
+    std::size_t operator()(const std::pair<int, int>& p) const {
+        return p.first ^ p.second;
+    }
+};
+
+std::unordered_set<std::pair<int, int>, SimplePairHash> m_set;
+```
+
 
 
 ### string
