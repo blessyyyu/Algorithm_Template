@@ -315,6 +315,23 @@ flip(k)			// 把第k位取反
 
 
 
+### 迭代器和下标的转换
+
+```cpp
+// 迭代器转化为下标
+distance是计算两个iterator直接的距离;
+index = distance(iter, container.begin());			// 得到iter的下标: index
+
+// 下标转化为迭代器
+advance是将iterator移动指定个元素;
+iter = container.begin();
+advance(iter, index);						// 得到index位置的迭代器iter
+```
+
+
+
+
+
 ### 函数对象
 
 * 重载**函数调用操作符**的类，其对象常称为**函数对象**
