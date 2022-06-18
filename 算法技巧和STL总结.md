@@ -745,10 +745,10 @@ lower_bound(), upper_bound()用于有序数组或容器中:
 #### 拷贝和替换算法:copy,swap,replace
 
 ```c++
-copy(iterator beg, iterator end, iterator dest);       // dest目标起始迭代器 记得提前开辟空间
+copy(iterator beg, iterator end, iterator dest);           // dest目标起始迭代器 记得提前开辟空间
 replace(iterator beg, iterator end, oldvalue, newvalue);   // 将区间内的旧元素替换成新元素
-replace_if(iterator beg, iterator end, _pred, newvalue);   //利用谓词来替换
-swap(container c1, container c2);             // 两个容器需要同种类型
+replace_if(iterator beg, iterator end, _pred, newvalue);   // 利用谓词来替换
+swap(container c1, container c2);                          // 两个容器需要同种类型
 ```
 
 

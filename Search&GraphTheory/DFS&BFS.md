@@ -269,7 +269,7 @@ public:
 
 
 
-![image-20211205142224714](C:\Users\blessyuuu\AppData\Roaming\Typora\typora-user-images\image-20211205142224714.png)
+![image-20211205142224714](DFS&BFS.assets/image-20211205142224714.png)
 
 
 

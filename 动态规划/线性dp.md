@@ -640,7 +640,7 @@ int main()
   - 属性是count。
 - 状态计算：
 
-![image-20211122210449252](C:\Users\blessyuuu\AppData\Roaming\Typora\typora-user-images\image-20211122210449252.png)
+![image-20211122210449252](线性dp.assets/image-20211122210449252.png)
 
 当在区间`[L, R]`里选择结点K作为树的根节点时，`[L, K-1]`区间都可以作为根节点的左子树，`[K+1 , R]` 区间都可以作为根节点的右子树。那么以K作为根节点的所有二叉搜索树 的种数 = 左边区间的所有种数 $\times$ 右边区间的所有种数
 
@@ -699,7 +699,7 @@ public:
 
 从最后一根开始思考：
 
-![image-20211129224051593](C:\Users\blessyuuu\AppData\Roaming\Typora\typora-user-images\image-20211129224051593.png)
+![image-20211129224051593](线性dp.assets/image-20211129224051593.png)
 
 ```c++
 typedef long long LL;
