@@ -1118,15 +1118,29 @@ int main()
 3. 出队的顺序就是拓扑排序的结果。
 
 ```c++
-queue <- 所有入度为0的点;
-while(queue.size()){
-    t <- 队头;
-    枚举t的所有出边j{
-        删掉t->j; d[j]--;
-        if(d[j] == 0){
-            queue <- j;
+bool topsort()
+{
+    int hh = 0, tt = -1;
+
+    // d[i] 存储点i的入度
+    for (int i = 1; i <= n; i ++ )
+        if (!d[i])
+            q[ ++ tt] = i;
+
+    while (hh <= tt)
+    {
+        int t = q[hh ++ ];
+
+        for (int i = h[t]; i != -1; i = ne[i])
+        {
+            int j = e[i];
+            if (-- d[j] == 0)
+                q[ ++ tt] = j;
         }
     }
+
+    // 如果所有点都入队了，说明存在拓扑序列；否则不存在拓扑序列。
+    return tt == n - 1;
 }
 ```
 

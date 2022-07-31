@@ -2,7 +2,7 @@
 
 
 
-### 树形DP：经典中的经典例题。【字节跳动笔试题】
+### 树形DP：经典中的经典例题。
 
 > [没有上司的舞会](https://www.acwing.com/problem/content/287/)
 
@@ -73,11 +73,11 @@ $−128≤H_i≤127$
 
 `res = max( f[root][0], f[root][1] )` ; 
 
-`f[u][0] = max(f[si][1], f[si][0])`, 其中`si`是`u`的直接子节点, 要遍历所有子节点选最大值。
+`f[u][0] = max(f[si][1], f[si][0])`, 其中`si`是`u`的直接子节点, 要遍历所有子节点选最大值。 并且，子节点可以为选中（1），也可以不选中（0）；
 
-`f[u][1] = f[s1][0] + f[s2][0] + ... + f[sn][0]`;  
+`f[u][1] = w[i] + f[s1][0] + f[s2][0] + ... + f[sn][0] `, `w[i]`为选中当前上司的高兴值。
 
-
+**时间复杂度：** 每一个节点都遍历一次，时间复杂度为O(n).
 
 ```c++
 #include <bits/stdc++.h>
@@ -103,7 +103,8 @@ void dfs(int u){
     f[u][1] = w[u];
     for(int i = h[u]; i != -1; i = ne[i]){
         int j = e[i];
-        
+        // 树形DP中dfs和平常的dfs略有不同，树形DPdfs的回溯是从根一直走到叶子节点为止；
+        // 所以一开始不需要考虑if (condition) return;
         dfs(j);
         
         f[u][0] += max(f[j][1],f[j][0]);
@@ -164,14 +165,14 @@ int main(){
 
 - 背包问题，数据构成一棵树的形式，所以一定是树形DP。那么一定需要**建图 + 找根节点**。采用有向图邻接表的方式建图。
 
-- 树形DP问题，通用的状态表示:  `f[u][j]`; `u`表示：以`u`为“根”节点的子树， `j`表示当前子树的“体积”限制。即，以`u`为根的子树，在不同体积限制下，能够取得的最大价值是多少。
+- 树形DP问题，通用的状态表示:  `f[u][j]`; `u`表示：以`u`为“根”节点的子树， `j`表示当前子树的“体积”限制。即，以`u`为根的子树，在不同体积限制下，能够取得的**最大价值**是多少。
 - 属性: max；
 - 状态转移： 与之前一样，首先将状态分为两部分，选择当前子树根节点`u` + 不选择当前子树根节点`u`； 如果是不选`u`， 最大价值一定是0，因为`u`的子节点也全部不能选；如果选择`u`，则要考虑子节点的选择情况。**重点**：在选择子节点时，由于这棵树不是二叉树、三叉树等，子节点的个数未知，如果是按照所有子节点的选择与否来划分状态，每个子节点也有选择和不选两种，这样时间复杂度最坏是$O(2^n), n为全部节点数量$。 所以这里采用按照体积来划分状态，和状态表示相对应（实际上状态计算是依赖于状态表示的）。
 - ![image-20220617103249826](树形dp和记忆化搜索.assets/image-20220617103249826.png)
 - 初始状态： `f[叶子节点][任意体积] = 0`
 - 终止状态： `f[root][m]`
 
-
+时间复杂度：O(N * V * V)
 
 ```cpp
 #include <iostream>
@@ -194,6 +195,7 @@ void dfs(int u){
     // 枚举u的所有子节点
     for(int i = h[u]; i != -1; i = ne[i]){
         int son = e[i];
+        // 同样递归子树节点。
         dfs(son);
         
         // 这里j的范围是>=0, 因为选择了父结点，但是子节点也可以不选
@@ -203,12 +205,10 @@ void dfs(int u){
             }
         }
     }
-    
-    // 默认选择父结点，增加上父结点w
+    // 选择父结点(当前节点)，增加上父结点价值
     for(int i = m; i >= v[u]; i --){
         f[u][i] = f[u][i - v[u]] + w[u];
     }
-    
     // 从树下往上开始选择，如果体积小于当前物品的体积： 
     // 则当前物品不能选，它的子节点也不能选，价值为0.
     for(int i = 0; i < v[u]; i ++){
@@ -238,13 +238,122 @@ int main(){
 
 
 
+### 树形DP之树的最长路径
+> [树的最长路径](https://www.acwing.com/problem/content/1074/)
+
+给定一棵树，树中包含 n 个结点（编号1~n）和 n−1 条无向边，每条边都有一个权值。
+现在请你找到树中的一条最长路径。
+
+换句话说，要找到一条路径，使得使得路径两端的点的距离最远。
+注意：路径中可以只包含一个点。
+
+**题意分析：**
+这是一道典型的找**树的直径**的题目。所谓树的直径，是指在一颗树之中，找两个节点，它们之间的距离最长。
+
+1. 考虑朴素做法： 如果每次枚举树中的任一起点和终点，时间复杂度为$O(n^2)$, 然后找到两个点之间的最长路径，如果使用单源最短路算法，也需要$O(n^2)$级别的，所以时间复杂度会爆掉。
+2. 如果不枚举起点和终点，转而枚举路径中经过的点。比如一条路径中选择一个经过的点u，把它看成树的根节点，其余的点都在它的下面。则可以设`f[u]`为经过`u`的所有路径的集合，属性是max, 表示最长路径。这样只需要枚举一遍所有的点即可，时间复杂度为O(n).
+
+![image-20220730114322012](树形dp和记忆化搜索.assets/image-20220730114322012.png)
+
+最长路径的计算：以u为根节点的树，找到以u为起点，以叶子节点作为终点的最长路`d1`, 和次长路`d2`. 那么以u作为中间节点的最长路径就是`d1 + d2`. 
+
+需要在迭代的过程中，不断去维护`d1, d2`的数值。
+
+
+```cpp
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+// 邻接表建图方法，其中由于是无向图，边的大小开辟为两倍。
+const int N = 1e4 + 10, M = 2 * N;
+int h[N], e[M], ne[M], w[M], idx;
+int n;
+// 维持最长距离的结果。
+int ans;
+
+void add(int a, int b, int c)
+{
+    e[idx] = b, ne[idx] = h[a], w[idx] = c;
+    h[a] = idx ++;
+}
+
+// 由于dfs里每次都是考虑u的子树部分，不能往上走到father节点，所以多加一个变量来控制。
+// dfs(u, father)的返回值为以u为根节点的，往下走的最长路径。
+int dfs(int u, int father)
+{
+	// d1表示最长路径，d2表示次长路径。
+    int d1 = 0, d2 = 0;
+    int dist = 0;
+    for (int i = h[u]; i != -1; i = ne[i]) {
+        int j = e[i];
+        if (j == father)    continue;
+        int d = dfs(j, u) + w[i];	// w[i] = dist(u, j)
+        dist = max(d, dist);
+		// 更新最长路和次长路
+        if (d >= d1)    d2 = d1, d1 = d;
+        else if (d > d2)    d2 = d;
+    }
+    ans = max(ans, d1 + d2);
+    return dist;
+}
+
+int main()
+{
+    cin >> n;
+    memset(h, -1, sizeof h);
+    for (int i = 0; i < n - 1; i ++) {
+        int a, b, c;
+        cin >> a >> b >> c;
+        add(a, b, c);
+        add(b, a, c);
+    }
+    dfs(1, -1);
+    cout << ans << endl;
+    return 0;
+}
+```
 
 
 
+**如果是有向图，怎么办？**
+
+> [Leetcode 543: 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/submissions/)
+
+标准二叉树有向图的直径，可以将每一个节点，递归地看成是“根节点”，并寻找到从这个节点往左走到叶结点的最大值，和往右走到叶结点的最大值，然后两个值相加，就是经过这个“根节点”的直径长度。
 
 
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int res = 0;
+    int diameterOfBinaryTree(TreeNode* root) {
+        dfs(root);
+        return res;
+    }
 
-
+    int dfs(TreeNode *u) {
+        if (u == nullptr)   return 0;
+        int left = dfs(u->left), right = dfs(u->right);
+        int dist = max(left, right);
+        res = max(res, left + right);
+        return dist + 1;
+    }
+};
+```
 
 
 

@@ -269,6 +269,10 @@ cout<< a["yxc"]<<endl;
 缺点是不支持lower_bound() / upper_bound(), 也不支持迭代器的++ 和 --;
 
 ```c++
+// 初始化
+std::unordered_map<std::string, size_t> people {{"Jan",44}, {"Jim", 33}, {"Joe", 99}}; // Name,age
+
+
 // //复制一个已有的unordered_map
 unordered_map<char, int> hs(hw);
 // 一个键key, 映射多个值，把多个值放入一个vector中.
