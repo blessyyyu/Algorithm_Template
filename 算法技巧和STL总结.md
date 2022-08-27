@@ -182,8 +182,30 @@ pop();  //弹出堆顶元素
     #include<vector>
     priority_queue<int, vector<int>, greater<int>> heap;       // 小根堆
 
-// 如何自定义比较
-自己写一个仿函数：定义一个类，然后重载bool operator()(int a, int b)函数
+// 如何自定义比较，注意下面比较函数的定义，别弄反了。
+1. 自己写一个仿函数：定义一个类/结构体，然后重载bool operator()(int a, int b)函数;
+struct cmp
+{
+    // 表示大的排序在后面，即小根堆
+	bool operator()(const fruit& f1, const fruit& f2)
+	{
+		return f1.price > f2.price;
+	}
+};
+
+2. 在结构体中重载 < 符号，注意声明函数为const， 否则编译不通过;
+struct fruit
+{
+	int price;
+	// 注意此处一定要声明为const，否则编译时无法通过
+	// const修饰的是类函数隐藏的第一个参数 this指针，这表明this指针只读，也即类成员不可修改
+	// 注意该用法只能是成员函数，要是类的静态函数或者是非成员函数就不可以在函数名后面加上const
+    // 下面这个表示如果当前元素比后面的元素要小，则交换位置，大根堆。
+	bool operator < (const fruit& f1) const
+	{
+		return this->price < f1.price;
+	}
+};
 ```
 
 

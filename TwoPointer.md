@@ -118,7 +118,7 @@ int main(){
 
 
 
-### Leetcode 76 最小覆盖子串
+## Leetcode 76 最小覆盖子串
 
 给你一个字符串 `s` 、一个字符串 `t` 。返回 `s` 中涵盖 `t` 所有字符的最小子串。如果 `s` 中不存在涵盖 `t` 所有字符的子串，则返回空字符串 `""` 。
 
@@ -196,5 +196,52 @@ public:
 
 
 
+## Leetcode 15 三数之和
+> [三数之和](https://leetcode.cn/problems/3sum/)
 
+给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有和为 0 且不重复的三元组。
 
+注意：答案中不可以包含重复的三元组。
+
+示例 1：
+
+输入：nums = [-1,0,1,2,-1,-4]
+输出：[[-1,-1,2],[-1,0,1]]
+
+**题意分析：**
+如果是找到两个元素之和等于一个特定值，很好想，直接排序加两个端点开始往中间的双指针做法。但是三个数之和等于一个特定值，实际上也是使用双指针算法，区别在于，在排好序的数组中首先要固定一个数，在剩下的元素中使用双指针算法。
+
+![image-20220802221149812](TwoPointer.assets/image-20220802221149812.png)
+
+让`num[i] <= nums[j] <= nums[k]`，且`i < j < k`， 下标的小于号严格成立。这样就不会出现重复使用两次的情况。
+
+由于同一个数可能在排完序后位于相邻的位置上，所以方案可能重叠，因此需要在双指针for循环开头作特判。
+
+要想遍历到所有的方案，`i`遍历所有元素，`j` 从 `i + 1`开始，`k`从`n-1`开始。`while(nums[i] + nums[j] + nums[k] > 0)  k -= 1;`，直到`nums[i] + nums[j] + nums[k] == 0`时，放入结果中; 或者`nums[i] + nums[j] + nums[k] < 0`了，这时候再移动j, 让nums[j]变大。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> res;
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+
+        for (int i = 0; i < n; i ++) {
+            // 去除重复方案
+            if (i && nums[i] == nums[i-1])   continue;
+            for (int j = i + 1, k = n - 1; j < n; j ++) {
+                // 去除重复方案
+                if (j > i + 1 && nums[j] == nums[j - 1])  continue;
+                while (j < k && nums[i] + nums[j] + nums[k] > 0)    k --;
+                // 防止k == j
+                if (k == j) continue;
+                if (nums[i] + nums[j] + nums[k] == 0) {
+                    res.push_back({nums[i], nums[j], nums[k]});
+                }
+            }
+        }
+        return res;
+    }
+};
+```
