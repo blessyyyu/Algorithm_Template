@@ -4,6 +4,28 @@
 
 自定义`split函数`, 用于C++处理类似 `1,2,3,4`这种输入:
 
+- 推荐更快的方法
+
+```cpp
+vector<string> split2(string line, char delim)
+{
+    vector<string> res;
+    stringstream ss(line);
+    string item;
+    while (getline(ss, item, delim)) {
+        if (!item.empty()) {
+            // while (word.size() && word[0] == ' ') word.erase(word.begin());
+            res.push_back(item);
+        }
+    }
+    return res;
+}
+```
+
+
+
+- 自定义双指针法
+
 ```c++
 vector<string> m_split(string line, char split_char) {
 	vector<string> res;
@@ -12,12 +34,37 @@ vector<string> m_split(string line, char split_char) {
 		while ( j < line.size() && line[j] != split_char)    j++;
 		// substr参数第一个表示起始下标，第二个参数是长度， [i, j-1]
         string word = line.substr(i, j - i);
+        // 如果输入的分隔符是 1, 2, 3, 4, 5 这种逗号后还有一个空格的，可以在加入前去掉空格
+        // while (word.size() && word[0] == ' ') word.erase(word.begin());
 		res.push_back(word);
-            i = j;
-        }
+        i = j;
+    }
     return res;
 }
 ```
+
+
+
+### 十进制数转变为二进制数存储在string
+
+不断的 % 2, 将余数放在string中的最前端。
+
+```cpp
+j = number;
+string bin_j = "";
+while (j != 0) {
+    bin_j = to_string(j % 2) + bin_j;
+    j /= 2;
+}
+```
+
+
+
+
+
+
+
+
 
 
 
@@ -136,19 +183,58 @@ std::unordered_set<std::pair<int, int>, SimplePairHash> m_set;
 
 ### string
 
-字符串
+**字符串**
 
-```c++
+```cpp
 string s;
-    size();length();
-    empty();
-    clear();
-	erase();  // 支持删除某一项
- 	支持用大于号、小于号直接进行比较；当两个字符串的长度相同时，按照字典序排序进行比较。
-    s.substr(1, 2); 		// 第一个参数是字串的开始下标，第二个参数是子串长度(若很大，直接输出到最后一个元素)
-printf("%s\n", s.c_str())
-    s.c_str()   // 返回字符串最开始的指针
+size();length();
+empty();
+clear();
+erase();  // 支持删除某一项
+
+// erase例子
+string a = "abcde";
+auto temp = a.erase(3, 1);
+cout << "temp = " << temp << endl; // abce
+cout << "a = " << a << endl;		// abce
+
+
+支持用大于号、小于号直接进行比较；当两个字符串的长度相同时，按照字典序排序进行比较。
+s.substr(1, 2); 		// 第一个参数是字串的开始下标，第二个参数是子串长度(若很大，直接输出到最后一个元素)
+printf("%s\n", s.c_str());
+s.c_str();   // 返回字符串最开始的指针
+
+// 如果没有找到某个字符, string会返回string::npos;
+// 其中pos是unsigned int类型
+int pos = s.find(strs[i]);
+if (pos == string::npos){
+    return;
+}
+
+// 字符串头文件下的find()函数
+string st1("babbabab");
+cout << st1.find("bab", 2) << endl;    // 3
+
 ```
+
+
+
+**判断一个字符串是否是另一个字符串的前缀**
+
+```cpp
+string a = "abcde";
+string b = "abc";
+
+// 注意要转变为c型字符串，且最后一个参数是字符串的长度
+if (strncmp(a.c_str(), b.c_str(), 3) == 0) {
+    cout << "yes" << endl;
+}
+else {
+    cout << "no" << endl;
+}
+```
+
+
 
 
 
@@ -172,7 +258,7 @@ q = queue<int>();
 
 ```c++
 push(); //插入一个元素
-top();  //返回堆顶元素
+top();  //返回堆顶元素, 注意这里和普通的队列不同，普通队列是front()
 pop();  //弹出堆顶元素
 
 // 将大顶堆改成小顶堆
@@ -207,6 +293,49 @@ struct fruit
 	}
 };
 ```
+
+
+
+再列举一个例子：
+
+```cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct A{
+    int l, r;
+    int label;
+    bool operator < (const A &a)const {
+        return l < a.l;
+    }
+};
+// less和自定义结构体中的＜号是对应的，greater和 > 号是对应的
+priority_queue<A, vector<A>, less<A>> q;
+int main()
+{
+    q.push({1, 2, 3});
+    q.push({3, 4, 5});
+    q.push({4, 5, 6});
+    while(q.size()) {
+        auto t = q.top();
+        q.pop();
+        cout << t.l << ' ' << t.r << ' ' << t.label << endl;
+    }
+    return 0;
+}
+
+// 最后输出
+// 4 5 6
+// 3 4 5
+// 1 2 3
+```
+
+
+
+
+
+
 
 
 
@@ -247,12 +376,10 @@ begin()/ end()
 
 基于平衡二叉树（红黑树）来实现的，**动态维护有序序列**；
 
-
-
 ```c++
 // set里不能有重复元素
 set<int> s;
-s.insert();			// O(logn)
+s.insert();			// 插入元素的时间复杂度O(logn)
 size();
 empty();
 find();			// 查找一个数，不存在返回end迭代器
@@ -284,6 +411,88 @@ cout<< a["yxc"]<<endl;
 
 
 
+#### map中的排序：
+
+```cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct A{
+    int l, r;
+    int label;
+    bool operator < (const A &a)const {
+        return l < a.l;
+    }
+};
+// 按照key值排序, 且大的排在前面
+map<int, A, greater<int>> m;
+int main()
+{
+    m.insert({2, {1, 2 ,3}});
+    m.insert({1, {2, 3, 4}});
+    // 2 1 2 3
+    // 1 2 3 4
+    for (auto [k, v] : m) {
+        cout << k << ' ' << v.l << ' ' << v.r << ' ' << v.label <<endl;
+    }
+    return 0;
+}
+```
+
+
+
+如果map中的key是一个结构体:
+
+```cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct A{
+    int l, r;
+    int label;
+    bool operator < (const A &a)const {
+        return l < a.l;
+    }
+};
+
+map<A, int, less<A>> m;
+int main()
+{
+    m.insert({{2, 3, 4}, 1});
+    m.insert({{1, 2 ,3}, 2});
+    
+    // 1 2 3 2
+    // 2 3 4 1
+    for (auto [k, v] : m) {
+        cout << k.l << ' ' << k.r << ' ' << k.label << ' ' << v <<endl;
+    }
+    return 0;
+}
+```
+
+如果map要按照value值排序：
+**可以将map中的元素按照pair的方式存储在序列容器vector<>中，利用vector里的sort来排序。**
+
+```cpp
+bool compare(const pair<string,int>& a, const pair<string,int>& b){
+	if( a.second == b.second )   return a.first < b.first;
+    else return a.second > b.second;
+}
+map<string,int> m{{"a",1},{"b",2},{"c",3}};
+
+vector<pair<string,int>> v(m.begin(), m.end());//将map中的元素拷贝到vector中
+
+sort(v.begin(), v.end(), compare);//实现value的排序
+
+```
+
+
+
+
+
+
 ### unordered_set, unordered_map, unordered_multiset, unordered_multimap
 
 基于哈希表来实现的， 和上面类似，增删改查的时间复杂度是O(1)；
@@ -305,10 +514,15 @@ m_counter[current_word] = vector<int>(3, 0);
 if(map.count(key)){}
 
 
-// 遍历map的一种简单写法，适合用于写算法, 需要满足C++17 
+// 遍历map的一种简单写法，适合用于写算法, 需要满足C++17
 for (auto [k, v] : map) {
     cout << k << " " << v << endl;
 }
+
+for (auto &[k, v] : map) {
+    // 这种遍历方式只能改变value值，key键是不能变的
+}
+
 
 //另一种写法
 for (auto iter = map.begin(); iter != map.end(); ++iter) {
@@ -324,7 +538,7 @@ for (auto iter = map.begin(); iter != map.end(); ++iter) {
 
 比如想要开辟一个10000 * 10000 bool数组，如果直接开辟，就需要$10^8 = 100MB$内存，但是如果限制内存为64MB, 那么就需要用bitset来存储；
 
-```c++
+```cpp
 bitset<10000> s;
 ~, &, |, ^;
 >>, << ;
@@ -346,7 +560,7 @@ flip(k)			// 把第k位取反
 ```cpp
 // 迭代器转化为下标
 distance是计算两个iterator直接的距离;
-index = distance(iter, container.begin());			// 得到iter的下标: index
+index = distance(container.begin(), iter);			// 得到iter的下标: index
 
 // 下标转化为迭代器
 advance是将iterator移动指定个元素;
@@ -614,10 +828,12 @@ int main() {
 **示例：**
 
 ```C++
+#include <iostream>
 #include <functional>
 #include <vector>
 #include <algorithm>
 
+using namespace std;
 class MyCompare
 {
 public:
@@ -636,6 +852,7 @@ void test01()
 	v.push_back(40);
 	v.push_back(20);
 
+    // 10 30 50 40 20 
 	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
 		cout << *it << " ";
 	}
@@ -643,9 +860,10 @@ void test01()
 
 	//自己实现仿函数
 	//sort(v.begin(), v.end(), MyCompare());
-	//STL内建仿函数  大于仿函数
+	//STL内建仿函数 大于仿函数
 	sort(v.begin(), v.end(), greater<int>());
 
+    // 50 40 30 20 10
 	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
 		cout << *it << " ";
 	}
@@ -655,8 +873,6 @@ void test01()
 int main() {
 
 	test01();
-
-	system("pause");
 
 	return 0;
 }
@@ -741,6 +957,15 @@ transform(v.begin(), v.end(), vTarget.begin(), TransForm());
 
 ```c++
 find(iterator beg, iterator end, value);       // value为要查找的元素
+// find在algorithm头文件下，如果没找到, 返回arr.end(); 如果找到了，返回迭代器。
+vector<int> arr{1,2,3,4};
+auto pos = find(arr.begin(), arr.end(), 5);
+if (pos == arr.end()) {
+    cout << "yes" << endl;				// 返回 yes
+}
+
+
+
 find_if(iterator beg, iterator end, _Pred);  
 adjacent_find(iterator beg, iterator end);   //查找相邻重复元素，两个元素相邻，并且相等。返回迭代器；找不到返回end()
 bool binary_search(iterator beg, iterator end, value);  // 二分查找。必须原来的元素是有序的
@@ -873,3 +1098,66 @@ set_difference(iterator beg1, iterator end1, iterator beg2, iterator end2, itera
 isalpha()             // 判断一个字符是不是字母，对中文字符会报错。
 ```
 
+
+
+### 正则表达式库的使用
+
+```cpp
+// #include <regex>
+#include <bits/stdc++.h>
+
+using namespace std;
+void test();
+void test2();
+void test_replace();
+
+
+int main(){
+    test();
+    test2();
+    test_replace();
+    return 0;
+}
+
+void test()
+{
+    // 只能搜索在test_str中出现的第一个符合的单词
+    // 查找不是在字符c之后的ei组合存在的单词
+	string pattern("[^c]ei");
+	pattern = "[[:alpha:]]*" + pattern + "[[:alpha:]]*";
+	regex r(pattern);
+	smatch results;
+	string test_str("receipt reinforce theif receive");
+	if (regex_search(test_str, results, r))
+		cout << results.str() << endl;//reinforce
+}
+
+void test2()
+{
+    // sregex的方法可以检查出所有匹配的部分
+    string pattern("[^c]ei");
+    pattern = "[[:alpha:]]*" + pattern + "[[:alpha:]]*";
+    regex r(pattern);
+    smatch result;
+    string test_str("receipt reinforce theif receive");
+    for (sregex_iterator it(test_str.begin(), test_str.end(), r), end_it; 
+    it != end_it; it ++ ){
+        cout << it -> str() << endl;
+    }
+    // reinforce theif
+}
+
+
+void test_replace()
+{
+    // regex_replace 将正则表达式匹配出来的部分全部替换成自定义的字符串
+    string pattern("[^c]ei");
+    pattern = "[[:alpha:]]*" + pattern + "[[:alpha:]]*";
+    regex r(pattern);
+    smatch result;
+    string test_str("receipt reinforce theif receive");
+    string to_replace("abcabc");
+    string ret = regex_replace(test_str, r, to_replace);
+    cout << ret << endl;  //receipt abcabc abcabc receive
+}
+```

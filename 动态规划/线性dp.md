@@ -105,29 +105,20 @@ int main(){
     int res = -1e9;
     for(int i = 1; i <= n; i++)
         res = max(res, f[n][i]);
-            
+
     cout << res << endl;
-    
     return 0;
-    
-    
 }
 ```
-
-
 
 使用一维滚动数组，减小空间复杂度；
 
 
 ```c++
 #include<bits/stdc++.h>
-
 using namespace std;
-
 const int N = 510;
-
 int t[N][N];
-
 int f[N];
 int n;
 
@@ -142,12 +133,12 @@ int main(){
     
     f[1] = t[1][1];
     
-    for(int i = 2; i <= n ; i ++){
-        for(int j = i; j >= 1; j--){
+    for(int i = 2; i <= n; i ++){
+        for(int j = i; j >= 1; j --){
             if( j == 1 ){
                 f[j] = f[j] + t[i][j];
                 continue;
-            }   
+            }
             if( j == i){
                 f[j] = f[j-1] + t[i][j];
                 continue;
@@ -162,10 +153,7 @@ int main(){
         res = max(res, f[i]);
             
     cout << res << endl;
-    
     return 0;
-    
-    
 }
 ```
 
@@ -183,14 +171,14 @@ int n;
 
 int main(){
     cin>>n;
-    for(int i=1 ; i<=n; i++){
+    for(int i=1; i<=n; i++){
         for(int j=1; j<=i; j++){
             cin>>f[i][j];
         }
     }
 
-    for(int i=n;i>=1;i--){
-        for(int j=i;j>=1;j--){
+    for(int i=n; i>=1; i--){
+        for(int j=i; j>=1; j--){
             f[i][j]=max(f[i+1][j],f[i+1][j+1])+f[i][j];
         }
     }
@@ -738,6 +726,91 @@ public:
 ```
 
 
+
+### Leetcode 53 + 152 最大子数组和 + 最大乘积子数组
+> [最大乘积子数组](https://leetcode.cn/problems/maximum-product-subarray/)
+> [最大子数组和](https://leetcode.cn/problems/maximum-subarray/)
+
+首先来看**最大子数组和**的问题：
+给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+子数组是数组中的一个连续部分。
+```
+样例输入：
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 
+```
+
+**思路**： 如果采用暴力枚举的做法，枚举连续子数组的两个端点，求得其中的和，再取最大值。时间复杂度是O(n^3), 如果采用前缀和优化，时间复杂度可以为O(n^2). 
+但是使用动态规划的思想， 时间复杂度可以优化为O(n)：
+- 状态表示: `f[i] = x`，`f[i]`为以下标i作为结束的所有序列集合。`x`表示所有集合中的和的最大值。
+- 属性： max。
+- 状态计算： `f[i] = max(f[i-1] + nums[i], nums[i])`。
+
+解答：
+```cpp
+const int N = 1e5 + 10;
+class Solution {
+public:
+    int f[N];
+    int maxSubArray(vector<int>& nums) {
+        memset(f , 0, sizeof f);
+        int len = nums.size();
+        f[0] = nums[0];
+        int res = f[0];
+        for(int i = 1; i < len; i ++){
+            f[i] = max(f[i-1] + nums[i], nums[i]);
+            res = max(f[i], res);
+        }
+        return res;
+    }
+};
+```
+
+**最大子数组积：**
+给你一个整数数组 nums ，请你找出数组中乘积最大的非空连续子数组（该子数组中至少包含一个数字），并返回该子数组所对应的乘积。
+
+测试用例的答案是一个 32-位 整数。
+
+子数组 是数组的连续子序列。
+
+```
+输入: nums = [2,3,-2,4]
+输出: 6
+解释: 子数组 [2,3] 有最大乘积 6。
+
+输入: nums = [-2,0,-1]
+输出: 0
+解释: 结果不能为 2, 因为 [-2,-1] 不是子数组。
+```
+
+**受上一题的启发，也可以用动态规划的思想**
+同样设`f[i] = x`为以下标i结束的所有子序列乘积的最大值，但是与之前不同的是，乘法会出现负负得正的情况，即`f[i-1] * nums[i]`， 如果nums[i] < 0， 那么`f[i-1]`越小，最后的乘积越大。
+如果nums[i] >0, 那么还是f[i-1]越大越好。
+
+所以需要另外引进一个数组`g[i] = y `，表示以下标i结束的所有子序列乘积的最小值。这样从前往后枚举数组中的每一个数，都要判断一下nums[i]与0的大小关系，然后选择与`g[] or f[]`相乘。
+为了更方便写代码，可以直接和`g[i-1], f[i-1]`都相乘取最大值最小值来更新`f[], g[]`即可。
+又因为只用到了`f[i-1], g[i-1]`, 所以可以用滚动数组的思想，压缩空间。
+太强了！
+
+```cpp
+class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        int n = nums.size();
+        int f = nums[0], g = nums[0];
+        int res = nums[0];
+        for (int i = 1; i < n; i ++) {
+            int a = nums[i], fa = f * a, ga = g * a;
+            f = max(nums[i], max(fa, ga));
+            g = min(nums[i], min(fa, ga));
+            res = max(res, f);
+        }
+        return res;
+    }
+};
+```
 
 
 

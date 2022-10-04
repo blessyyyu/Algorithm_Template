@@ -141,6 +141,50 @@ int main(){
 
 
 
+### Leetcode 二叉树的树形DP
+
+> [Leetcode 337 打家劫舍3](https://leetcode.cn/problems/house-robber-iii/?favorite=2cktkvj)
+
+![img](树形dp和记忆化搜索.assets/rob1-tree-16637256828793.jpg)
+
+
+
+选择了root, 就不能选择与root相连的直接子节点，反之，选择了子节点就不能选择root。求所有选择的节点的权值最大值。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int rob(TreeNode* root) 
+    {
+        auto f = dfs(root);
+        // f[0]表示root节点不选的所有方案权值， f[1] 表示选择root节点的方案权值
+        return max(f[0], f[1]);
+    }
+	// 返回值是vector<int> 类型，很巧妙
+    vector<int> dfs(TreeNode *u) 
+    {
+        if (!u)     return {0, 0};
+        auto x = dfs(u->left), y = dfs(u->right);
+        // 下面第一项表示不选择根节点（子节点可以选择和不选）， 第二项表示选择根节点，
+        // 直接相连的子节点不能选
+        return { max(x[0],x[1]) + max(y[0], y[1]), x[0] + y[0] + u->val};    
+    }
+};
+```
+
+
+
 
 
 ### 有依赖的背包问题（树形DP）
@@ -251,7 +295,7 @@ int main(){
 这是一道典型的找**树的直径**的题目。所谓树的直径，是指在一颗树之中，找两个节点，它们之间的距离最长。
 
 1. 考虑朴素做法： 如果每次枚举树中的任一起点和终点，时间复杂度为$O(n^2)$, 然后找到两个点之间的最长路径，如果使用单源最短路算法，也需要$O(n^2)$级别的，所以时间复杂度会爆掉。
-2. 如果不枚举起点和终点，转而枚举路径中经过的点。比如一条路径中选择一个经过的点u，把它看成树的根节点，其余的点都在它的下面。则可以设`f[u]`为经过`u`的所有路径的集合，属性是max, 表示最长路径。这样只需要枚举一遍所有的点即可，时间复杂度为O(n).
+2. 如果不枚举起点和终点，转而枚举路径中经过的点。**比如一条路径中选择一个经过的点u，把它看成树的根节点**，其余的点都在它的下面。则可以设`f[u]`为经过`u`的所有路径的集合，属性是max, 表示最长路径。这样只需要枚举一遍所有的点即可，时间复杂度为O(n).
 
 ![image-20220730114322012](树形dp和记忆化搜索.assets/image-20220730114322012.png)
 
@@ -357,6 +401,61 @@ public:
 
 
 
+#### [ 二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/)
+
+题目大意: 在一颗二叉树中，找到路径和最大的一条路径，输出它的最值。
+
+
+
+![image-20220829115159025](树形dp和记忆化搜索.assets/image-20220829115159025.png)
+
+
+
+**解决思路：**
+
+1. 如何在一棵二叉树中遍历所有的路径呢？
+
+   答： 这个通常采用的方法是**枚举根节点**，以根节点作为起点，依次向左和向右，找左子树的最大路径和、右子树的最大路径和，然后加上根节点的值，则为最大路径的长度。递归地求解。
+
+2. 如果值为负，如何处理？
+   答：如果值为负，与0做一个max比较，及时止损即可。
+   
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int res = 0;
+    int maxPathSum(TreeNode* root) {
+        res = INT_MIN;
+        (void)dfs(root);
+        return res;
+    }
+	// 这里这个dfs的过程，就是枚举根节点，把每一个节点都看成是根节点。
+    int dfs(TreeNode *u) {
+        if (u == nullptr)    return 0;
+        // 与0做一个max比较
+        int left = max(0, dfs(u->left)), right = max(0, dfs(u->right));
+        res = max(res, u->val + left + right);
+        return u->val + max(left, right);
+    }
+};
+
+```
+
+
+
+
+
 ### 记忆化搜索
 
 经典例题：
@@ -426,15 +525,17 @@ public:
 #### 思路与解答：
 
 - 状态表示：
-  - 集合：`f[i][j]`, 表示所有从i,j 开始滑的路径。
+  - 集合：`f[i][j]`, 表示所有从`i,j` 开始滑的路径。
   - 属性: max， 表示所有路径的最大长度。
 - 状态计算：
 
-![image-20211107220101853](树形dp和记忆化搜索.assets/image-20211107220101853.png)
+注意，这一题正着从开始滑雪开始思考，从最后一步从哪里结束思考都可以。（下面是“开始点”思考）
+
+如果第一步是往下走，那么`f[i][j] = f[i + 1][j] + 1`; 如果第一步是往上走： `f[i][j] = f[i - 1][j] + 1`;
+
+同理往左和往右分别为： `f[i][j] = f[i][j - 1] +1;` 以及`f[i][j] = f[i][j + 1] + 1;`
 
 每一个初始点，都可以有四个方向可供选择，但是选择一个方向前，必须满足高度要小于原来的高度。
-
-
 
 ```c++
 #include <bits/stdc++.h>
@@ -466,9 +567,7 @@ int dp(int x, int y){
         if( a >= 1 && a <= n && b >= 1 && b <= m && h[a][b] < h[x][y]){
             v= max(v, dp(a,b) + 1);
         }
-        
-    }
-    
+    }   
     return v;
 }
 

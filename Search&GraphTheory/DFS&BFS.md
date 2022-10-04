@@ -1,6 +1,6 @@
 # 图的DFS 和 BFS
 
-## 有向图和无向图
+### 有向图和无向图
 
 无向图可以看成是特殊的有向图，每一条无向图中的边，可以看成是有向图里加了两条对称的边。
 
@@ -537,7 +537,7 @@ public:
             for(int j = 0; j < 9; j ++){
                 if(board[i][j] != '.'){
                     int num = board[i][j] - '1';
-                    row[i][num] = col[j][num] = field[ i / 3][j / 3][num] = true;
+                    row[i][num] = col[j][num] = field[i / 3][j / 3][num] = true;
                 }
             }
         }
@@ -797,6 +797,74 @@ public:
     }
 };
 ```
+
+
+
+### 字符串的dfs遍历
+
+> [leetcode 394 字符串解码](https://leetcode.cn/problems/decode-string/?favorite=2cktkvj)
+
+给定一个经过编码的字符串，返回它解码后的字符串。
+
+编码规则为: k[encoded_string]，表示其中方括号内部的 encoded_string 正好重复 k 次。注意 k 保证为正整数。
+
+你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。
+
+此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 k ，例如不会出现像 3a 或 2[4] 的输入。
+
+```
+示例 1：
+输入：s = "3[a]2[bc]"
+输出："aaabcbc"
+
+示例 2：
+输入：s = "3[a2[c]]"
+输出："accaccacc"
+
+示例 3：
+输入：s = "2[abc]3[cd]ef"
+输出："abcabccdcdcdef"
+
+示例 4：
+输入：s = "abc3[cd]xyz"
+输出："abccdcdcdxyz"
+```
+
+
+
+**思路和解答：**
+字符串的dfs爆搜一般要注意： 传参是传值还是传引用，字符串传值的好处是当递归回来的时候字符串自动回归现场，不需要手动还原；字符串传引用通常用于字符串不变的情况？（待考虑）
+
+具体到该题，由于括号是可以嵌套的，因此想到栈，想到递归。
+
+```cpp
+class Solution {
+public:
+    string decodeString(string s) {
+        int u = 0;
+        return dfs(s, u);
+    }
+	// string传引用，用来增加效率。u传引用，是因为递归过程中要改变
+    string dfs(string &s, int &u) {
+        string res;
+        while (u < s.size() && s[u] != ']') {
+            if (isalpha(s[u])) res += s[u ++];
+            else if (isdigit(s[u])){
+                int k = u;
+                while (isdigit(s[k]))   k ++;
+                int num = stoi(s.substr(u, k - u));
+                u = k + 1;  // 去除左括号
+                string y = dfs(s, u);
+                u ++;   // 过滤掉右括号
+                while (num --)  res += y;
+            }
+        }
+        return res;
+    }
+};
+```
+
+
 
 
 
@@ -1419,15 +1487,15 @@ n == mat[i].length \\
 1 <= m, n <= 10^4 \\
 1 <= m * n <= 10^4 \\
 mat[i][j] \space is \space either \space  0  \space or \space 1. \\
-mat 中至少有一个 0 
+mat 中至少有一个 0
 $$
 
 
 #### 思路与模板
 
-整个矩阵只充满两种元素，要求一堆元素到另一堆元素之间的最小距离。在图论问题中多源距离通常可以构造一个虚拟的源结点，并将这个虚拟的源结点到第一批结点之间的距离构造为（0或者1），又因为所有格子之间的距离为1，所以可以使用BFS来求距离。
+整个矩阵只充满两种元素，要求一堆元素到另一堆元素之间的最小距离。在图论问题中多源距离通常可以构造一个虚拟的源结点，并将这个虚拟的源结点到第一批结点之间的距离构造为（0或者1），又因为所有格子之间的距离为1，所以可以使用`BFS`来求距离。
 
-BFS需要一个队列，只需要把所有的矩阵中的0（**把问题中距离的目标**）都放入队列中初始化队列元素，达到虚拟源结点的效果。
+`BFS`需要一个队列，只需要把所有的矩阵中的0（**把问题中距离的目标**）都放入队列中初始化队列元素，达到虚拟源结点的效果。
 
 > 把目标作为起点反向求距离，也是经常使用的方法！
 
@@ -1448,7 +1516,8 @@ public:
         for(int i = 0; i < n; i ++){
             for(int j = 0; j < m; j ++){
                 if(mat[i][j] == 0){
-                    // 把所有初始结点放入队列中
+                    // 多源BFS最重要的一步: 把所有满足要求的初始结点放入队列中
+                    // 单源BFS只需要放入一个初始点即可（起点 or 终点倒推）
                     q.push({i,j});
                     res[i][j] = 0;
                 }   
@@ -1468,10 +1537,145 @@ public:
         }
         return res;
     }
-
-
 };
 ```
+
+
+
+
+
+### BFS寻找路径
+> [Acwing 魔板](https://www.acwing.com/problem/content/1109/)
+
+题目大意：用一个字符串表示状态：12345678，有固定的操作，来更改这个状态表示，最后判断题目要求的“最终状态”和“初始状态”之间需要进行最少几步操作，然后打印出操作步骤。
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+string state = "12345678";
+string final;
+
+queue<string> q;
+// st状态
+unordered_map<string, bool> st;
+// dist数组
+unordered_map<string, int> dist;
+
+// path[dst_string] = {init_string, 'op'}
+// 用path来存储当前状态是由哪个状态，通过什么操作产生的
+// 类似于int path[N];int idx = 0; 
+unordered_map<string, pair<string, char>> path;
+
+// a, b, c操作都是在string 状态下进行计算的
+// 并且操作顺序一定是a, b, c；这样能保证操作序列是字典序最小的。
+// a操作
+string op_a(string s)
+{
+    reverse(s.begin(), s.end());
+    return s;
+}
+
+// b操作
+string op_b(string s)
+{
+    char c = s[3];
+    s.erase(3, 1);
+    s = c + s;
+    
+    char b = s[4];
+    s.erase(4, 1);
+    s += b;
+    
+    return s;
+}
+
+// c操作
+string op_c(string s)
+{
+    swap(s[1], s[2]);
+    swap(s[1], s[6]);
+    swap(s[5], s[6]);
+    return s;
+}
+
+int bfs() {
+    q.push(state);
+    st[state] = true;
+    dist[state] = 0;
+    while (q.size()) {
+        auto t = q.front();
+        q.pop();
+        
+        if (t == final) {
+            return dist[final];
+        }
+        
+        for (int i = 0; i < 3; i ++) {
+            string changeStr;
+            char op;
+            switch(i){
+                case 0:
+                    changeStr = op_a(t);
+                    op = 'A';
+                    break;
+                case 1:
+                    changeStr = op_b(t);
+                    op = 'B';
+                    break;
+                case 2:
+                    changeStr = op_c(t);
+                    op = 'C';
+                    break;
+            }
+
+            if (!st.count(changeStr)) {
+                q.push(changeStr);
+                st[changeStr] = true;
+                dist[changeStr] = dist[t] + 1;
+                path[changeStr] = {t, op};
+            }
+        }
+    }
+    return -1;
+}
+
+int main()
+{
+    for (int i = 0; i < 8; i ++) {
+        char c;
+        cin >> c;
+        final += c;
+    }
+    
+    int res = bfs();
+    cout << res << endl;
+    
+    // 用while循环倒着遍历map
+    string cur_state = final;
+    string op_str;
+    while (cur_state != "12345678"){
+        op_str += path[cur_state].second;
+        cur_state = path[cur_state].first;
+    }
+    
+    // 倒序找的path， 要顺序输出
+    reverse(op_str.begin(), op_str.end());
+    for (int i = 0; i < op_str.size(); i ++) 
+        cout << op_str[i];
+
+    return 0;
+}
+
+
+```
+
+
+
+
+
+
+
 
 
 
@@ -1585,10 +1789,14 @@ public:
                 }
             }
         }
-
         return -1;
     }
-
 };
 ```
+
+
+
+
+
+
 

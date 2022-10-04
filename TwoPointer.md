@@ -245,3 +245,66 @@ public:
     }
 };
 ```
+
+> 总结**去重的**方法：
+>
+> 1. 先不考虑去重，全部放入res数组中；再用排序 + unique + erase处理。
+> 2. 先排序，如果当前选中的值和（左边的）上一个元素选中的值相同，则在枚举的时候跳过这种情况。  （推荐使用这种，速度快）
+
+
+
+## Leetcode 31 下一个排列
+
+> [Leetcode 31](https://leetcode.cn/problems/next-permutation/submissions/)
+
+题目大意：找出给定元素的所有排列中，比当前的输入大的，最小的一个排列。
+
+```
+输入：nums = [1,2,3]
+输出：[1,3,2]
+
+输入：nums = [3,2,1]
+输出：[1,2,3]
+
+输入：nums = [1,1,5]
+输出：[1,5,1]
+```
+
+
+
+方法一：直接使用库函数`next_permutation()`
+
+```cpp
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        next_permutation(nums.begin(), nums.end());
+    }
+};
+```
+
+
+
+方法二：思维题： 使用双指针法, 对于一个排列`[2, 3, 5, 4, 1]`， 要找比原来排列大的最小排列，所以我们希望左半部分的元素尽量不变，只修改右半元素。
+从后往前找，后面的子数组`[5, 4, 1]` 呈降序排列，对这一部分修改已经没法让整个排列变大，所以肯定要再往前找元素修改，那么就找第一个不呈降序排列的元素，比如这里的3。 要让3变大一点，即在后面的子数组中找到第一个比3大的最小的元素4，让它俩交换位置，得到：`[2, 4, 5, 3, 1]`， 再把后面子数组从降序改为升序`[2, 4, 1, 3, 5]`，得到最后结果。
+
+```cpp
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int n = nums.size();
+        int k = n - 1;
+        while (k >= 1 && nums[k - 1] >= nums[k]) k--;
+        if (k == 0) {
+        // 已经呈降序排序，全部反转
+            reverse(nums.begin(), nums.end());
+        }else {
+            int t = k;
+            while (t < n && nums[t] > nums[k-1]) t ++;
+            swap(nums[k-1], nums[t-1]);
+            sort(nums.begin() + k, nums.end());
+        }
+    }
+};
+```
+
