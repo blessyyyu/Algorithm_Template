@@ -9,7 +9,7 @@
 ## 思考的模板：
 
 ```c++
-for(int i=0, j = 0; i <n; i++){
+for(int i=0, j = 0; i < n; i++){
     while( j < n && check(i,j) ) j++;
     //每道题的具体逻辑
 }
@@ -17,7 +17,8 @@ for(int i=0, j = 0; i <n; i++){
 
 
 
-## 经典例题1
+## 经典例题1 输出一段文本当中的每一个单词
+
 输出一段文本当中的每一个单词。
 
 ```c++
@@ -48,7 +49,7 @@ int main(){
 
 
 
-## 经典例题2
+## 经典例题2 最长不重复子串
 
 最长不重复子串( 最长连续不重复子序列 ):
 
@@ -307,4 +308,92 @@ public:
     }
 };
 ```
+
+
+
+## Leetcode 438找到字符串中所有字母异位词
+给定两个字符串 s 和 p，找到 s 中所有 p 的 异位词 的子串，返回这些子串的起始索引。不考虑答案输出的顺序。
+
+异位词 指由相同字母重排列形成的字符串（包括相同的字符串）。
+
+> 链接：https://leetcode.cn/problems/find-all-anagrams-in-a-string
+
+```
+示例 1:
+输入: s = "cbaebabacd", p = "abc"
+输出: [0,6]
+解释:
+起始索引等于 0 的子串是 "cba", 它是 "abc" 的异位词。
+起始索引等于 6 的子串是 "bac", 它是 "abc" 的异位词。
+ 
+示例 2:
+输入: s = "abab", p = "ab"
+输出: [0,1,2]
+解释:
+起始索引等于 0 的子串是 "ab", 它是 "ab" 的异位词。
+起始索引等于 1 的子串是 "ba", 它是 "ab" 的异位词。
+起始索引等于 2 的子串是 "ab", 它是 "ab" 的异位词。
+```
+
+**思路：**
+使用滑动窗口双指针算法，用两个hash表比较的方法来判断s的子串和p是否是异位词。
+
+```cpp
+class Solution {
+public:
+    bool isSame(unordered_map<char, int> &a, unordered_map<char, int> &b) {
+        if (a.size() != b.size())   return false;
+        else {
+            for (auto [k, v] : a) {
+          		// 注意b.count(k)要写在前面，否则直接b[k]会在b中创建k这个key
+                if (b.count(k) == 0 || b[k] != v)   return false;
+            }
+            return true;
+        }
+    }
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> res;
+        unordered_map<char, int> counter_p;
+
+        for (auto c : p)    counter_p[c] ++;
+        unordered_map<char, int> counter_s;
+        for (int i = 0, j = 0; i < s.size(); i ++) {
+            // 滑动窗口处理右端进入窗口的部分
+            counter_s[s[i]] ++;
+            // i - j + 1 > p.size() 处理滑动窗口左端出窗口的部分
+            if (i - j + 1 > p.size()) {
+                if (-- counter_s[s[j]] == 0) counter_s.erase(s[j]);
+                j ++;
+            }
+            if (isSame(counter_s, counter_p))   res.push_back(j);
+        }
+        return res;
+    }
+};
+
+// 直接用一个hashmap优化的方法：
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        unordered_map<char, int> cnt;
+        for (auto c: p) cnt[c] ++ ;
+        vector<int> res;
+        int tot = cnt.size();
+        for (int i = 0, j = 0, satisfy = 0; i < s.size(); i ++ ) {
+        // 左端进窗口的时候，让原来的cnt--
+            if ( -- cnt[s[i]] == 0) satisfy ++ ;
+            while (i - j + 1 > p.size()) {
+                if (cnt[s[j]] == 0) satisfy -- ;
+                // 出窗口的时候反而让原来的cnt ++
+                cnt[s[j ++ ]] ++ ;
+            }
+            if (satisfy == tot) res.push_back(j);
+        }
+        return res;
+    }
+};
+
+```
+
+
 

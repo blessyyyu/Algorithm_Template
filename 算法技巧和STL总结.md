@@ -566,6 +566,10 @@ index = distance(container.begin(), iter);			// 得到iter的下标: index
 advance是将iterator移动指定个元素;
 iter = container.begin();
 advance(iter, index);						// 得到index位置的迭代器iter
+
+
+// 注意vector.front(), vector.back(), vector.begin(), vector.end() 的区别
+前两者都是返回元素的引用，后两者才是返回迭代器
 ```
 
 
