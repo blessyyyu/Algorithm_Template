@@ -869,6 +869,7 @@ public:
 
 
 ### DFS解决图的连通性问题
+
 这类题目往往用DFS的性质来判断图中两个节点之间是否连通，但不能用来判断两个点的最短距离。
 
 #### 迷宫
@@ -917,6 +918,163 @@ int main()
         if (dfs(xa, ya))    puts("YES");
         else    puts("NO");
     }
+    return 0;
+}
+```
+
+
+
+
+
+### DFS搜索顺序问题
+
+DFS在进行搜索的过程中，时间复杂度较高，通常用来解决NP完全问题，里面可能需要涉及到多种优化，比如剪枝或者按照组合数的形式来搜索，还需要考虑是否需要恢复现场。
+
+#### 马走日
+> [例题马走日](https://www.acwing.com/problem/content/1118/)
+
+**题意分析：**
+给定一个n * m的棋盘，和起始位置，计算马能有多少途径遍历棋盘中的每一个点。
+马在棋盘上按照日字形走，一共有8个位置，每当它选择一个位置，就相当于它在“路径树（搜索状态树）”中往下走了一种情况，此时又存在8种选择。
+这种性质非常适合dfs，当在此步之后的所有可能的路径搜索完，系统栈会自动恢复为上一步的情况。
+**难点：** 1. 如何判断当前状态已经把所有棋盘格子都走了一遍？ 
+用一个新的变量来记录已经走过的棋盘上的格子数，当cnt == 棋盘总数时，则完成一遍遍历。（计算机每当遇到有什么问题时，都可以新增记录变量，来解决。这种思想也是类似于新增一层接口来解决）
+2. 8个位置，如何去走？ 答： 用dx[], dy[]来表示。
+
+```cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int N = 10;
+// st[][]来判断地图中
+bool st[N][N];
+int dx[8] = {-2, -1, 1, 2, 2, 1, -1, -2}, dy[8] = {1, 2, 2, 1, -1, -2, -2, -1};
+int n, m, x, y;
+int res;
+
+void dfs(int a, int b, int cnt)
+{
+    if (cnt == n * m) {
+        res ++;
+        return;
+    }    
+    st[a][b] = true;
+    for (int i = 0; i < 8; i ++) {
+        int ta = a + dx[i], tb = b + dy[i];
+        if (ta < 0 || ta >= n || tb < 0 || tb >= m || st[ta][tb])   continue;
+        dfs(ta, tb, cnt + 1);
+    }
+    // 恢复现场
+    st[a][b] = false;
+}
+
+int main()
+{
+    int T;
+    scanf("%d", &T);
+    while (T--) {
+        scanf("%d%d%d%d", &n, &m, &x, &y);
+        // 每一组数据都要把st[]全部置为false
+        memset(st, false, sizeof st);
+        res = 0;
+        dfs(x, y, 1);
+        cout << res << endl;
+    }
+    return 0;
+}
+
+```
+
+#### 单词接龙
+> [单词接龙](https://www.acwing.com/problem/content/1119/)
+
+题目大意：
+在两个单词相连时，其重合部分合为一部分，例如 beast 和 astonish ，如果接成一条龙则变为 beastonish。
+每个单词最多使用两次。
+要求求出：以要求输入的字母开头的最长的“龙”的长度。
+```
+输入：
+5
+at
+touch
+cheat
+choose
+tact
+a
+
+输出：
+23（atoucheatactactouchoose）
+```
+**题意分析：**
+要把能够接龙的单词作为一张图存储下来，比如单词word_a可以和word_b、word_c接龙，word_a -> word_b, word_a -> word_c应该存在一条边，这样才能搜索所有的情况。并且每一次拼接字符串后，也是相当于走了搜索树的一步，适合用dfs来解决。
+
+问题： 1. 如何建图？ 2. 每个单词使用两次如何表示？
+
+回答1：单词数不大，可以暴力两两枚举，再写一个for()循环枚举长度切分字符串子串，判断两个字符串能否拼接，图中存储的是最少重复的长度（这样接龙的长度才能最大）。
+
+回答2：每个单词使用两次，可以用unordered_map<string, int> 来存，也可以直接用数组，每个单词有自己在单词数组中的下标，用used[]数组也可以存储。（推荐用数组）
+
+
+```cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+const int N = 21;
+int n;
+string word[N];
+
+// 表示哪些单词可以接到另一些单词后面
+int g[N][N];        
+int res;
+// used[] 表示单词使用次数
+int used[N];        
+
+void dfs(string str, int last)
+{
+    res = max((int)str.size(), res);
+    used[last] ++;
+    for (int i = 0; i < n; i ++) {
+        if (g[last][i] && used[i] < 2) {
+            dfs(str + word[i].substr(g[last][i]), i);
+        }
+    }
+    
+    used[last] --;
+}
+
+int main()
+{
+    cin >> n;
+    for (int i = 0; i < n; i ++) {
+        cin >> word[i];
+    }
+    char start;
+    cin >> start;
+    
+    // 建图
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < n; j ++) {
+            string a = word[i], b = word[j];
+            // 枚举长度
+            for (int k = 1; k < min(a.size(), b.size()); k ++) {
+                if (a.substr(a.size() - k, k) == b.substr(0, k)) {
+                    g[i][j] = k;
+                    // break是要让重合部分最少，这样拼接后整个字符串的长度才会最大
+                    break;          
+                }
+            }
+        }
+    }
+    
+    for (int i = 0; i < n; i ++) {
+    // 起始字符串
+        if (word[i][0] == start) {
+            dfs(word[i], i);
+        }
+    }
+    
+    cout << res << endl;
     return 0;
 }
 ```
