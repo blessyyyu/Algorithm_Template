@@ -12,7 +12,7 @@ private:
 public:
     Graph()
     {
-        v = 0;
+        v = N;           // vertext 节点数
         g = std::vector<std::vector<int>>(N, std::vector<int>(N, 0));
     }
 
