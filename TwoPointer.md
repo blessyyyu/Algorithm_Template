@@ -1,8 +1,21 @@
 # 双指针算法
 
 ## 核心性质
-双指针算法的核心在于优化思想，将原本$O(n^2)$的时间复杂度的公式优化为O(n);
-具体的方法可以是发现某种单调性。
+双指针算法的核心，用于解决一类基于“子段”的统计问题。  子段：数组中连续的一段 (下标范围可以用一个闭区间表示)
+
+这类题目的朴素做法都是两重循环的枚举，枚举左端点l， 右端点r （l <= r）
+
+优化冗余，将原本$O(n^2)$的时间复杂度的公式优化为O(n);
+
+优化策略：
+
+1 固定右端点，看左端点的取值范围
+
+   如果左端点的取值范围是一个前缀，可以用前缀和算法维护前缀信息
+
+2 移动一个端点，看另一个端点的变化情况。 
+
+​    如果一个端点跟随另一个端点单调移动，像一个"滑动窗口"
 
 
 
@@ -251,6 +264,37 @@ public:
 >
 > 1. 先不考虑去重，全部放入res数组中；再用排序 + unique + erase处理。
 > 2. 先排序，如果当前选中的值和（左边的）上一个元素选中的值相同，则在枚举的时候跳过这种情况。  （推荐使用这种，速度快）
+
+```java
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> list = new ArrayList<>();
+        Set<List<Integer>> set = new HashSet<>();  // set 用来去重; 
+        List<Integer> numList = Arrays.stream(nums).boxed().collect(Collectors.toList());  // int[]数组流式转变为List
+        Collections.sort(numList);   // 从小到大排序
+        for (int i = 0; i < numList.size(); i ++) {  // 双指针算法
+            int target = 0 - numList.get(i);
+            for (int j = i + 1, k = numList.size() - 1; j < k; j ++) {
+                while (numList.get(j) + numList.get(k) < target && j < k) {
+                    j ++;
+                }
+                while (numList.get(j) + numList.get(k) > target && j < k) {
+                    k --;
+                }
+                if (numList.get(j) + numList.get(k) == target && j < k ) {
+                    set.add(new ArrayList<>(Arrays.asList(numList.get(i), numList.get(j), numList.get(k))));
+                }
+            }
+        }
+        list.addAll(set);  // set去重后的元素添加到list里
+        return list;
+    }
+}
+```
+
+
+
+
 
 
 
