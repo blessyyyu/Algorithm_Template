@@ -461,3 +461,58 @@ public:
 };
 ```
 
+
+
+
+
+### Trie树代码模板
+
+```c++
+class Trie {
+public:
+    // 构造函数
+    Trie() {
+        root = new Node();
+    }
+
+    // 插入字符串的函数
+    void insert(std::string word) {
+        find(word, true, true);
+    }
+
+    // 查找字符串是否存在的函数
+    bool search(std::string word) {
+        return find(word, true, false);
+    }
+
+    // 查找是否存在以给定前缀开头的字符串的函数
+    bool startsWith(std::string prefix) {
+        return find(prefix, false, false);
+    }
+
+private:
+    // 字典树节点的结构体
+    struct Node {
+        int count;  // 记录以该节点结尾的字符串的数量
+        std::unordered_map<char, Node*> child;  // 存储子节点的映射
+        Node(): count(0) {}  // 节点的构造函数，初始化计数为 0
+    };
+
+    Node* root;  // 字典树的根节点
+
+    // 辅助查找函数
+    bool find(const std::string& s, bool exact_match, bool insert_if_not_exist) {
+        Node* curr = root;  // 从根节点开始遍历
+        for (char c : s) {  // 遍历字符串中的每个字符
+            if (curr->child.find(c) == curr->child.end()) {  // 如果当前字符不在子节点中
+                if (!insert_if_not_exist) return false;  // 如果不允许插入，返回 false
+                curr->child[c] = new Node();  // 允许插入则创建新节点
+            }
+            curr = curr->child[c];  // 移动到下一个节点
+        }
+        if (insert_if_not_exist) curr->count++;  // 如果允许插入，增加该节点的计数
+        return exact_match ? curr->count > 0 : true;  // 根据是否需要精确匹配返回结果
+    }
+};
+```
+

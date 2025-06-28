@@ -7,15 +7,24 @@
 - 推荐更快的方法
 
 ```cpp
-vector<string> split2(string line, char delim)
-{
+std::string trim(const std::string& str) {  // 用来去除字符串前后的空格和制表符
+    size_t first = str.find_first_not_of(" \t\n\r\f\v");
+    if (std::string::npos == first) {
+        return "";
+    }
+    size_t last = str.find_last_not_of(" \t\n\r\f\v");
+    return str.substr(first, (last - first + 1));
+}
+
+
+vector<string> split(string line, char delim) {
     vector<string> res;
-    stringstream ss(line);
+    stringstream ss(line);   // #include<sstream>
     string item;
-    while (getline(ss, item, delim)) {
+    while (getline(ss, item, delim)) {   // #include<string> 中的函数
         if (!item.empty()) {
-            // while (word.size() && word[0] == ' ') word.erase(word.begin());
-            res.push_back(item);
+            auto trim_item = trim(item);
+            res.push_back(trim_item);
         }
     }
     return res;
@@ -23,25 +32,6 @@ vector<string> split2(string line, char delim)
 ```
 
 
-
-- 自定义双指针法
-
-```c++
-vector<string> m_split(string line, char split_char) {
-	vector<string> res;
-	for (int i = 0, j = 0; i < line.size(); i++) {
-		j = i;
-		while ( j < line.size() && line[j] != split_char)    j++;
-		// substr参数第一个表示起始下标，第二个参数是长度， [i, j-1]
-        string word = line.substr(i, j - i);
-        // 如果输入的分隔符是 1, 2, 3, 4, 5 这种逗号后还有一个空格的，可以在加入前去掉空格
-        // while (word.size() && word[0] == ' ') word.erase(word.begin());
-		res.push_back(word);
-        i = j;
-    }
-    return res;
-}
-```
 
 
 
@@ -57,8 +47,6 @@ while (j != 0) {
     j /= 2;
 }
 ```
-
-
 
 
 
@@ -88,7 +76,7 @@ v.insert(v.end(),3);//在向量末尾追加新元素。
 v.insert(v.end(),4,1);//在尾部插入4个1
 v.erase():           // 有两种函数原型：
 	iteratorerase(iterator position);                    // 删除某个迭代器位置的元素
-	iteratorerase(iterator first, iterator last);			// 删除一段迭代器的位置
+	iteratorerase(iterator first, iterator last);			// 删除一段迭代器的位置 前闭后开[first, last)
 
 ```
 
@@ -119,10 +107,17 @@ for(auto iter=vec.begin();iter!=vec.end(); )
 解决删除连续数字的一种方法：
 
 ```c++
-veci.erase(remove(vec.begin(),vec.end(),3),vec.end());
+veci.erase(remove(vec.begin(), vec.end(), 3), vec.end());
+std::remove 是 <algorithm> 头文件中定义的一个标准库算法，其函数原型为：
+
+template< class ForwardIt, class T >
+ForwardIt remove( ForwardIt first, ForwardIt last, const T& value );
+参数说明：
+first 和 last：定义了一个前闭后开区间 [first, last)，表示要处理的元素范围。
+value：要从该范围内移除的值。
+功能：std::remove 会将区间 [first, last) 中所有等于 value 的元素移动到区间的末尾，并返回一个指向新的逻辑末尾的迭代器。注意，std::remove 并不会真正删除元素，它只是对元素进行了重排。
+在 remove(vec.begin(), vec.end(), 3) 中，它会在 vec 容器的整个范围内查找所有值为 3 的元素，并将它们移动到容器的末尾，然后返回一个指向新的逻辑末尾的迭代器。
 ```
-
-
 
 
 
@@ -159,25 +154,15 @@ pair最经典的用法就是某个变量有两个属性，并且要按照其中�
 vector<pair<string, vector<int> >> vec(map.begin(), map.end());    // 初始化一个哈希表
 // 自定义cmp函数
 sort(vec.begin(), vec.end(), cmp);
+
+bool cmp()
 ```
 
 
 
 如果某个变量有三个属性：`pair<int, pair<int,int>> p;`
 
-注意：在`hashmap`或者`hashset`中，`pair<int, int> `不能单独作为键值对中的key值，因为C++中会自动把key值作一个hash函数，而`pair<type, type> `型，编译器没有自动指定hash函数，需要手动添加：
-
-一种简单的hash方法如下：
-
-```c++
-struct SimplePairHash {
-    std::size_t operator()(const std::pair<int, int>& p) const {
-        return p.first ^ p.second;
-    }
-};
-
-std::unordered_set<std::pair<int, int>, SimplePairHash> m_set;
-```
+注意：在`hashmap`或者`hashset`中，`pair<int, int> `不能单独作为键值对中的key值，因为C++中会自动把key值作一个hash函数，而`pair<type, type> `型，编译器没有自动指定hash函数， 可以直接将三元组变为string:  "param1,param2,param3", 而unordered_map里，给string是有hash值的；
 
 
 
@@ -254,7 +239,7 @@ q = queue<int>();
 
 ### priority_queue
 
-优先队列,实际上就是堆，**默认是大顶堆**， `less<int>`仿函数, 堆顶元素是最大值。
+优先队列,实际上就是堆，**默认是大顶堆**， `less<int>`仿函数, 堆顶元素是最大值。【`less<int>` 则表示大的放前面】
 
 ```c++
 push(); //插入一个元素
@@ -268,7 +253,7 @@ pop();  //弹出堆顶元素
     #include<vector>
     priority_queue<int, vector<int>, greater<int>> heap;       // 小根堆
 
-// 如何自定义比较，注意下面比较函数的定义，别弄反了。
+// 如何自定义比较，注意下面比较函数的定义，别弄反了。【这种比较难理解】
 1. 自己写一个仿函数：定义一个类/结构体，然后重载bool operator()(int a, int b)函数;
 struct cmp
 {
@@ -279,7 +264,7 @@ struct cmp
 	}
 };
 
-2. 在结构体中重载 < 符号，注意声明函数为const， 否则编译不通过;
+2. 在结构体中重载 < 符号，注意声明函数为const， 否则编译不通过; 【这种比较推荐】
 struct fruit
 {
 	int price;
@@ -287,6 +272,7 @@ struct fruit
 	// const修饰的是类函数隐藏的第一个参数 this指针，这表明this指针只读，也即类成员不可修改
 	// 注意该用法只能是成员函数，要是类的静态函数或者是非成员函数就不可以在函数名后面加上const
     // 下面这个表示如果当前元素比后面的元素要小，则交换位置，大根堆。
+    // 两个const + 引用
 	bool operator < (const fruit& f1) const
 	{
 		return this->price < f1.price;
@@ -882,7 +868,7 @@ int main() {
 }
 ```
 
-总结：关系仿函数中最常用的就是greater<>大于， 不写默认是less<int>()
+总结：关系仿函数中最常用的就是greater<>大于， 不写默认是`less<int>()`
 
 
 
@@ -983,17 +969,30 @@ count_if(iterator beg, iterator end, _Pred);     // 按照谓词来统计元素�
 
 #### 排序算法:sort,merge,reverse,lower_bound()， upper_bound()
 
-```text
+```cpp
 sort(iterator beg, iterator end, _Pred);    // 比较函数可以是谓词，可以是普通函数
 random_shuffle(iterator beg, iterator end);  // 指定范围内的元素随机调整次序，使用时记得加随机数种子
 //merge中容器元素合并，并存储到另一容器中
 // 注意: 两个容器必须是有序的 ; dest :目标容器开始迭代器, 合并出来的元素不是有序的
 merge(iterator beg1, iterator end1, iterator beg2, iterator end2, iterator dest);  
+
 reverse(iterator beg, iterator end);              //用的多！
 lower_bound(), upper_bound()用于有序数组或容器中:
-	lower_bound(first, last, val)用来寻找数组或容器的[first,last)范围内第一个值大于等于val的元素位置，若是数组，返回指针；若是容器，返回迭代器。
-    upper_bound(first, last, val)返回第一个大于val值的元素位置。
-begin <    x <= lower_bound < upper_bound     < end                                          
+ lower_bound(first, last, val)用来寻找数组或容器的[first,last)范围内第一个值大于等于val的元素位置，若是数组，返回指针；若是容器，返回迭代器。
+ upper_bound(first, last, val)返回第一个大于val值的元素位置。
+ begin <    x <= lower_bound < upper_bound     < end         
+
+std::vector<int> data = {9, 3, 6, 2, 5, 1, 7};
+std::nth_element(data.begin(), data.begin() + 2, data.end());
+// 
+// nth_element
+   template<class RandomIt, class Compare>
+   void nth_element(RandomIt first, RandomIt nth, RandomIt last, Compare comp);
+// 核心思想 将序列中第 n 小的元素（从 0 开始计数）放置到第 n 个位置，同时保证该位置的元素满足左侧全小于等于、右侧全大于等于的条件，但两侧元素不保证有序
+                                         
+                                         
+
+
 ```
 
 
