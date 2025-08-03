@@ -323,10 +323,6 @@ int main()
 
 
 
-
-
-
-
 ### stack
 
 ```c++
@@ -443,7 +439,7 @@ struct A{
     }
 };
 
-map<A, int, less<A>> m;
+map<A, int, less<A>> m;  // map默认是这种形式, 按照key值从小到大排序; 
 int main()
 {
     m.insert({{2, 3, 4}, 1});
